@@ -83,7 +83,7 @@ class Server {
             res.status(200).send();
         });
         this.app.get('/test', (req: Request, res: Response) => {
-            res.status(200).json({ message: 'test success!!!' });
+            res.status(200).json({ message: 'test success!!!222' });
         });
     }
 }
