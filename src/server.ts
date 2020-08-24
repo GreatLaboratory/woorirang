@@ -6,11 +6,11 @@ import express, { Application, Request, Response } from 'express';
 import helmet from 'helmet';
 import hpp from 'hpp';
 // import { Sequelize } from 'sequelize';
-// import passport from 'passport';
+import passport from 'passport';
 
 // import { init } from './models';
 // import { COOKIE_SECRET } from './config/secret';
-// import { passportConfig } from './config/passport';
+import { passportConfig } from './config/passport';
 // import userRouter from './routers/userRouter';
 // import postRouter from './routers/postRouter';
 // import commentRouter from './routers/commentRouter';
@@ -24,7 +24,7 @@ class Server {
         this.app = express();
         // this.connectDB();
         this.config();
-        // passportConfig(passport);
+        passportConfig(passport);
         // this.routes();
     }
 
@@ -63,7 +63,7 @@ class Server {
             limit: '200mb'
         }));
         // this.app.use(cookieParser(COOKIE_SECRET));
-        // this.app.use(passport.initialize());
+        this.app.use(passport.initialize());
     }
 
     // 라우터
@@ -83,7 +83,7 @@ class Server {
             res.status(200).send();
         });
         this.app.get('/test', (req: Request, res: Response) => {
-            res.status(200).json({ message: 'test success!!!222' });
+            res.status(200).json({ message: 'test success!!!333' });
         });
     }
 }
