@@ -21,15 +21,18 @@ export const init = (): Sequelize => {
             primaryKey: true,
             allowNull: false,
         },
+        snsId: {
+            type: DataTypes.STRING(50),
+            allowNull: true,
+        },
         email: {
             type: DataTypes.STRING(50),
             unique: true,
-            autoIncrement: false,
             allowNull: false,
         },
         password: {
             type: new DataTypes.STRING(300),
-            allowNull: false,
+            allowNull: true,
         },
         nickname: {
             type: new DataTypes.STRING(20),

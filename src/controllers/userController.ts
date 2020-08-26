@@ -1,6 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 import passport from 'passport';
 import jwt from 'jsonwebtoken';
+import axios, { AxiosRequestConfig } from 'axios';
 
 import User from '../models/User';
 import Post from '../models/Post';
@@ -45,6 +46,36 @@ export const login = async (req: Request, res: Response, next: NextFunction) => 
             res
                 .status(200)
                 .json({ token: `Bearer ${token}` });
+        }
+    } catch (err) {
+        console.log(err);
+        next(err);
+    }
+};
+
+// POST -> 카카오톡 로그인하기
+export const kakao  = async (req: Request, res: Response, next: NextFunction)=> {
+    const { accessToken, nickname, mbti } = req.body;
+    const header: AxiosRequestConfig = { headers: {
+        'Authorization': `Bearer ${accessToken}`,
+        'Content-type': 'application/x-www-form-urlencoded;charset=utf-8'
+    }};
+    try {
+        const userInfo = await axios.get('https://kapi.kakao.com/v2/user/me', header);
+        const { email } = userInfo.data.kakao_account;
+        const exUser: User | null = await User.findOne({ where: { email, snsId: userInfo.data.id } });
+        if (exUser) {
+            req.user = exUser;
+            next();
+        } else {
+            const newUser: User = await User.create({ 
+                snsId: userInfo.data.id,
+                email,
+                nickname,
+                mbti,
+            });
+            req.user = newUser;
+            next();
         }
     } catch (err) {
         console.log(err);

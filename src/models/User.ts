@@ -5,6 +5,7 @@ import * as bcrypt from 'bcrypt-nodejs';
 
 export default class User extends Model {
     public id!: number;
+    public snsId?: string;
     public email!: string;
     public password!: string;
     public nickname!: string;
