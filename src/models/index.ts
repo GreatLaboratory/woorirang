@@ -89,10 +89,6 @@ export const init = (): Sequelize => {
             type: new DataTypes.STRING(150),
             allowNull: false,
         },
-        userNickName: {
-            type: new DataTypes.STRING(150),
-            allowNull: false,
-        },
         likes: {
             type: DataTypes.INTEGER,
             allowNull: false,
@@ -137,10 +133,6 @@ export const init = (): Sequelize => {
             type: DataTypes.INTEGER,
             allowNull: false,
             defaultValue: 0
-        },
-        userNickName: {
-            type: new DataTypes.STRING(20),
-            allowNull: false,
         },
         type: {
             type: new DataTypes.STRING(10),

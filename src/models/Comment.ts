@@ -7,7 +7,6 @@ export default class Comment extends Model {
     public postId!: number;
     public commentId!: number;
     public content!: string;
-    public userNickName!: string;
     public likes!: number;
 
     public getComments!: HasManyGetAssociationsMixin<Comment>;

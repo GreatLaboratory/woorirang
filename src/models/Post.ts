@@ -1,6 +1,11 @@
 import { Model, HasManyGetAssociationsMixin, Association } from 'sequelize';
 import Comment from './Comment';
 
+export const enum PostType {
+    Free = 'free',
+    Topic = 'topic',
+}
+
 export default class Post extends Model {
     public id!: number;
     public userId!: number;
@@ -9,7 +14,7 @@ export default class Post extends Model {
     public likes!: number;
     public views!: number;
     public commentNum!: number;
-    public userNickName!: string;
+    public type!: PostType;
 
     public getComments!: HasManyGetAssociationsMixin<Comment>;
 
