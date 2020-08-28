@@ -3,6 +3,25 @@ import Post from './Post';
 import Comment from './Comment';
 import * as bcrypt from 'bcrypt-nodejs';
 
+export const MBTI =  {
+    ISTJ : 'istj',
+    ISFJ : 'isfj',
+    INFJ : 'infj',
+    INTJ : 'intj',
+    ISTP : 'istp',
+    ISFP : 'isfp',
+    INFP : 'infp',
+    INTP : 'intp',
+    ESTP : 'estp',
+    ESFP : 'esfp',
+    ENFP : 'enfp',
+    ENTP : 'entp',
+    ESTJ : 'estj',
+    ESFJ : 'esfj',
+    ENFJ : 'enfj',
+    ENTJ : 'entj',
+};
+
 export default class User extends Model {
     public id!: number;
     public snsId?: string;

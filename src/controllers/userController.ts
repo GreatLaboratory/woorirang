@@ -3,13 +3,13 @@ import passport from 'passport';
 import jwt from 'jsonwebtoken';
 import axios, { AxiosRequestConfig } from 'axios';
 
-import User from '../models/User';
+import User, { MBTI } from '../models/User';
 import Post from '../models/Post';
 import Comment from '../models/Comment';
 import { JWT_SECRET } from '../config/secret';
 
 // 이메일형식 체크
-const isValidEmail = (email: string) => {
+const isValidEmail = (email: string): boolean => {
     const regex = new RegExp(
         /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
     );
@@ -27,6 +27,11 @@ const checkEmailPw = (email: string, password: string) => {
     if (!isValidEmail(email)) {
         return { mesesage: '이메일 양식에 맞게 넣어주세요.' };
     }
+};
+
+// mbti 체크
+const isValidMbti = (mbti: string): boolean => {
+    return Object.values(MBTI).includes(mbti);
 };
 
 // POST -> passport 로그인
@@ -56,6 +61,7 @@ export const login = async (req: Request, res: Response, next: NextFunction) => 
 // POST -> 카카오톡 로그인하기
 export const kakao  = async (req: Request, res: Response, next: NextFunction)=> {
     const { accessToken, nickname, mbti } = req.body;
+    if (mbti && !isValidMbti(mbti)) return res.status(409).json({ message: '유효한 mbti타입이 아닙니다.' });
     const header: AxiosRequestConfig = { headers: {
         'Authorization': `Bearer ${accessToken}`,
         'Content-type': 'application/x-www-form-urlencoded;charset=utf-8'
@@ -88,6 +94,7 @@ export const signUp = async (req: Request, res: Response, next: NextFunction) =>
     const { email, password, mbti, nickname } = req.body;
     const error = checkEmailPw(email, password);
     if (error) return res.status(400).json(error);
+    if (!mbti || !isValidMbti(mbti)) return res.status(409).json({ message: '유효한 mbti타입이 아닙니다.' });
     try {
         const user: User | null = await User.findOne({ where: { email } });
         if (user) return res.status(400).json({ message: '이미 가입된 이메일 입니다.' });
