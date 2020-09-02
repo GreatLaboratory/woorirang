@@ -12,7 +12,7 @@ import { init } from './models/index';
 import { COOKIE_SECRET } from './config/secret';
 import { passportConfig } from './config/passport';
 import userRouter from './routers/userRouter';
-// import postRouter from './routers/postRouter';
+import postRouter from './routers/postRouter';
 // import commentRouter from './routers/commentRouter';
 
 class Server {
@@ -34,6 +34,7 @@ class Server {
         try {
             await sequelize.authenticate();
             await sequelize.sync();
+            // await sequelize.sync({force: true});
             // This will run .sync() only if database name ends with '_test'
             // 이건 굉장히 파괴적인 옵션이라 test-dev서버에서 한번 데이터들 싹 갈아엎을 때 해야한다.
             // await sequelize.sync({ force: true, match: /_test$/ });
@@ -69,7 +70,7 @@ class Server {
     // 라우터
     private routes (): void {
         this.app.use('/api/user', userRouter);
-        // this.app.use('/api/post', postRouter);
+        this.app.use('/api/post', postRouter);
         // this.app.use('/api/comment', commentRouter);
     }
 
@@ -83,7 +84,11 @@ class Server {
             res.status(200).send();
         });
         this.app.get('/test', (req: Request, res: Response) => {
-            res.status(200).json({ message: 'test success!!!333', today: new Date() });
+            res.status(200).json({ message: 'test success!!!333', today: new Date().toLocaleDateString('ko-KR', {
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric'
+            }) });
         });
     }
 }

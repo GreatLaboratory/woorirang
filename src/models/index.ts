@@ -5,6 +5,7 @@ import Post from './Post';
 import LikePost from './LikePost';
 import LikeComment from './LikeComment';
 import Topic from './Topic';
+import Image from './Image';
 import { MYSQL_URI, MYSQL_DATABASE, MYSQL_USERNAME, MYSQL_PASSWORD } from '../config/secret';
 import * as bcrypt from 'bcrypt-nodejs';
 
@@ -44,8 +45,6 @@ export const init = (): Sequelize => {
         },
     }, {
         sequelize,
-        // modelName: 'User',
-        // tableName: 'User',
         engine: 'InnoDB',
         charset: 'utf8',
         indexes: [
@@ -60,44 +59,6 @@ export const init = (): Sequelize => {
                 user.password = bcrypt.hashSync(user.password, salt);
             }
         }
-    });
-
-    Comment.init({
-        id: {
-            type: DataTypes.INTEGER.UNSIGNED,
-            autoIncrement: true,
-            primaryKey: true,
-            allowNull: false,
-        },
-        userId: {
-            type: DataTypes.INTEGER.UNSIGNED,
-            allowNull: false,
-        },
-        postId: {
-            type: DataTypes.INTEGER.UNSIGNED,
-            allowNull: true,
-        },
-        topicId: {
-            type: DataTypes.INTEGER.UNSIGNED,
-            allowNull: true,
-        },
-        commentId: {
-            type: DataTypes.INTEGER.UNSIGNED,
-            allowNull: true,
-        },
-        content: {
-            type: new DataTypes.STRING(150),
-            allowNull: false,
-        },
-        likes: {
-            type: DataTypes.INTEGER,
-            allowNull: false,
-            defaultValue: 0
-        },
-    }, {
-        sequelize,
-        engine: 'InnoDB',
-        charset: 'utf8',
     });
 
     Post.init({
@@ -175,6 +136,44 @@ export const init = (): Sequelize => {
         charset: 'utf8',
     });
 
+    Comment.init({
+        id: {
+            type: DataTypes.INTEGER.UNSIGNED,
+            autoIncrement: true,
+            primaryKey: true,
+            allowNull: false,
+        },
+        userId: {
+            type: DataTypes.INTEGER.UNSIGNED,
+            allowNull: false,
+        },
+        postId: {
+            type: DataTypes.INTEGER.UNSIGNED,
+            allowNull: true,
+        },
+        topicId: {
+            type: DataTypes.INTEGER.UNSIGNED,
+            allowNull: true,
+        },
+        commentId: {
+            type: DataTypes.INTEGER.UNSIGNED,
+            allowNull: true,
+        },
+        content: {
+            type: new DataTypes.STRING(150),
+            allowNull: false,
+        },
+        likes: {
+            type: DataTypes.INTEGER,
+            allowNull: false,
+            defaultValue: 0
+        },
+    }, {
+        sequelize,
+        engine: 'InnoDB',
+        charset: 'utf8',
+    });
+
     LikePost.init({
         id: {
             type: DataTypes.INTEGER.UNSIGNED,
@@ -221,13 +220,44 @@ export const init = (): Sequelize => {
         charset: 'utf8',
     });
 
+    Image.init({
+        id: {
+            type: DataTypes.INTEGER.UNSIGNED,
+            autoIncrement: true,
+            primaryKey: true,
+            allowNull: false,
+        },
+        postId: {
+            type: DataTypes.INTEGER.UNSIGNED,
+            allowNull: true,
+        },
+        topicId: {
+            type: DataTypes.INTEGER.UNSIGNED,
+            allowNull: true,
+        },
+        url: {
+            type: new DataTypes.STRING(200),
+            allowNull: false,
+        },
+    }, {
+        sequelize,
+        timestamps: false,
+        engine: 'InnoDB',
+        charset: 'utf8',
+    });
+
     // User : Comment = 1 : N
     User.hasMany(Comment, {
         foreignKey: 'userId'
     });
     Comment.belongsTo(User, {
-        foreignKey: 'userId'
+        foreignKey: 'userId',
+        // as: 'User'
     });
+    // Comment.belongsTo(User, {
+    //     foreignKey: 'userId',
+    //     as: 'CommentsUser'
+    // });
     
     // User : Post = 1 : N
     User.hasMany(Post, {
@@ -260,6 +290,14 @@ export const init = (): Sequelize => {
     Comment.belongsTo(Post, {
         foreignKey: 'postId'
     });
+
+    // Post : Image = 1 : N
+    Post.hasMany(Image, {
+        foreignKey: 'postId'
+    });
+    Image.belongsTo(Post, {
+        foreignKey: 'postId'
+    });
     
     // Topic : Comment = 1 : N
     Topic.hasMany(Comment, {
@@ -268,9 +306,20 @@ export const init = (): Sequelize => {
     Comment.belongsTo(Topic, {
         foreignKey: 'topicId'
     });
+
+    // Topic : Image = 1 : N
+    Topic.hasMany(Image, {
+        foreignKey: 'topicId'
+    });
+    Image.belongsTo(Topic, {
+        foreignKey: 'topicId'
+    });
     
     // Comment : Comment = 1 : N
     Comment.hasMany(Comment, {
+        foreignKey: 'commentId'
+    });
+    Comment.belongsTo(Comment, {
         foreignKey: 'commentId'
     });
 
