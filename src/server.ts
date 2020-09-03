@@ -13,7 +13,7 @@ import { COOKIE_SECRET } from './config/secret';
 import { passportConfig } from './config/passport';
 import userRouter from './routers/userRouter';
 import postRouter from './routers/postRouter';
-// import commentRouter from './routers/commentRouter';
+import commentRouter from './routers/commentRouter';
 
 class Server {
     // Express App 필드 선언
@@ -71,7 +71,7 @@ class Server {
     private routes (): void {
         this.app.use('/api/user', userRouter);
         this.app.use('/api/post', postRouter);
-        // this.app.use('/api/comment', commentRouter);
+        this.app.use('/api/comment', commentRouter);
     }
 
     // 서버 구동
