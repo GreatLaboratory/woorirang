@@ -78,7 +78,7 @@ export const init = (): Sequelize => {
         },
         content: {
             type: new DataTypes.STRING(150),
-            allowNull: false,
+            allowNull: true,
         },
         likes: {
             type: DataTypes.INTEGER,
@@ -99,6 +99,11 @@ export const init = (): Sequelize => {
             type: new DataTypes.STRING(10),
             allowNull: false,
         },
+        isAnonymous: {
+            type: DataTypes.BOOLEAN,
+            allowNull: false,
+            defaultValue: true,
+        },
     }, {
         sequelize,
         engine: 'InnoDB',
@@ -112,23 +117,23 @@ export const init = (): Sequelize => {
             primaryKey: true,
             allowNull: false,
         },
+        userId: {
+            type: DataTypes.INTEGER.UNSIGNED,
+            allowNull: true,
+        },
         title: {
             type: new DataTypes.STRING(20),
             allowNull: false,
-        },
-        content: {
-            type: new DataTypes.STRING(20),
-            allowNull: false,
-        },
-        views: {
-            type: DataTypes.INTEGER,
-            allowNull: false,
-            defaultValue: 0
         },
         commentNum: {
             type: DataTypes.INTEGER,
             allowNull: false,
             defaultValue: 0
+        },
+        isAnonymous: {
+            type: DataTypes.BOOLEAN,
+            allowNull: false,
+            defaultValue: true,
         },
     }, {
         sequelize,
@@ -167,6 +172,11 @@ export const init = (): Sequelize => {
             type: DataTypes.INTEGER,
             allowNull: false,
             defaultValue: 0
+        },
+        isAnonymous: {
+            type: DataTypes.BOOLEAN,
+            allowNull: false,
+            defaultValue: true,
         },
     }, {
         sequelize,
@@ -264,6 +274,14 @@ export const init = (): Sequelize => {
         foreignKey: 'userId'
     });
     Post.belongsTo(User, { 
+        foreignKey: 'userId' 
+    });
+    
+    // User : Topic = 1 : N
+    User.hasMany(Topic, {
+        foreignKey: 'userId'
+    });
+    Topic.belongsTo(User, { 
         foreignKey: 'userId' 
     });
 

@@ -3,10 +3,10 @@ import Comment from './Comment';
 
 export default class Topic extends Model {
     public id!: number;
+    public userId!: number;
     public title!: string;
-    public content!: string;
-    public views!: number;
     public commentNum!: number;
+    public isAnonymous!: boolean;
 
     public getComments!: HasManyGetAssociationsMixin<Comment>;
 

@@ -11,7 +11,7 @@ import Image from '../models/Image';
 export const createPost = async (req: Request, res: Response, next: NextFunction) => {
     const user: User = req.user as User;
     const userId: number = user.id;
-    const { title, content, type } = req.body;
+    const { title, content, type, isAnonymous } = req.body;
     const files: any = req.files;
     try {
         const newPost: Post = await Post.create({
@@ -19,6 +19,7 @@ export const createPost = async (req: Request, res: Response, next: NextFunction
             title,
             content,
             type,
+            isAnonymous,
         });
         files.forEach(async (file: any) => await Image.create({ postId: newPost.id, url: file.location }));
         res.status(201).json({ meesage: '성공적으로 게시물이 등록되었습니다.', data: newPost });
@@ -170,7 +171,9 @@ export const selectPostList = async (req: Request, res: Response, next: NextFunc
 export const selectTopThreePostList = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const postList: Post[] = await Post.findAll({
-            limit: 3,
+            where: {
+                type: PostType.Free
+            },
             include: [{
                 model: User,
                 attributes: ['nickname', 'mbti']
@@ -178,6 +181,7 @@ export const selectTopThreePostList = async (req: Request, res: Response, next: 
                 model: Image,
                 attributes: ['url']
             }],
+            limit: 3,
             order: [['likes', 'DESC']]
         });
         res.status(200).json({ meesage: '성공적으로 게시물이 조회되었습니다.', data: postList });

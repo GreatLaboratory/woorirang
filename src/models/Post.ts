@@ -15,6 +15,7 @@ export default class Post extends Model {
     public views!: number;
     public commentNum!: number;
     public type!: PostType;
+    public isAnonymous!: boolean;
 
     public getComments!: HasManyGetAssociationsMixin<Comment>;
 

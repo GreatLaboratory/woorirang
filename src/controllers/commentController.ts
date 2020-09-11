@@ -12,7 +12,7 @@ export const createCommentToPost = async (req: Request, res: Response, next: Nex
     const userId: number = user.id;
     const { postId } = req.params;
     const { commentId } = req.query;
-    const { content } = req.body;
+    const { content, isAnonymous } = req.body;
     let comment: Comment;
     try {
         const post: Post | null = await Post.findByPk(postId);
@@ -22,9 +22,9 @@ export const createCommentToPost = async (req: Request, res: Response, next: Nex
             await post.save();
         }
         if (commentId) {
-            comment = await Comment.create({ userId, postId: parseInt(postId), commentId: parseInt(commentId.toString()), content });
+            comment = await Comment.create({ userId, postId: parseInt(postId), commentId: parseInt(commentId.toString()), content, isAnonymous });
         } else {
-            comment = await Comment.create({ userId, postId: parseInt(postId), content });
+            comment = await Comment.create({ userId, postId: parseInt(postId), content, isAnonymous });
         }
         res.status(201).json({ messag: '성공적으로 댓글이 달렸습니다.', data: comment });
     } catch (err) {
@@ -40,7 +40,7 @@ export const createCommentToTopic = async (req: Request, res: Response, next: Ne
     const userId: number = user.id;
     const { topicId } = req.params;
     const { commentId } = req.query;
-    const { content } = req.body;
+    const { content, isAnonymous } = req.body;
     let comment: Comment;
     try {
         const topic: Topic | null = await Topic.findByPk(topicId);
@@ -50,10 +50,9 @@ export const createCommentToTopic = async (req: Request, res: Response, next: Ne
             await topic.save();
         }
         if (commentId) {
-            comment = await Comment.create({ userId, topicId: parseInt(topicId), commentId: parseInt(commentId.toString()), content });
-            res.status(201).json({ messag: '성공적으로 대댓글이 달렸습니다.', data: comment });
+            comment = await Comment.create({ userId, topicId: parseInt(topicId), commentId: parseInt(commentId.toString()), content, isAnonymous });
         } else {
-            comment = await Comment.create({ userId, topicId: parseInt(topicId), content });
+            comment = await Comment.create({ userId, topicId: parseInt(topicId), content, isAnonymous });
         }
         res.status(201).json({ messag: '성공적으로 댓글이 달렸습니다.', data: comment });
     } catch (err) {
