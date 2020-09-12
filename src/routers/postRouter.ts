@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import { createPost, updatePost, deletePost, selectPostList, selectPost, likePost, dislikePost, selectTopThreePostList } from '../controllers/postController';
 import { verifyJwtToken } from './middleWares/authValidation';
-import { productUploader } from './middleWares/uploader';
+import { postUploader } from './middleWares/uploader';
 
 class UserRouter {
     public router: Router;
@@ -13,10 +13,10 @@ class UserRouter {
 
     private routes (): void {
         // 게시물 등록하기
-        this.router.post('/', verifyJwtToken, productUploader.array('images', 10), createPost);
+        this.router.post('/', verifyJwtToken, postUploader.array('images', 10), createPost);
         
         // 게시물 수정하기
-        this.router.put('/:postId', verifyJwtToken, productUploader.array('images', 10), updatePost);
+        this.router.put('/:postId', verifyJwtToken, postUploader.array('images', 10), updatePost);
         
         // 게시물 삭제하기
         this.router.delete('/:postId', verifyJwtToken, deletePost);
