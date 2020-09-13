@@ -14,6 +14,7 @@ import { passportConfig } from './config/passport';
 import userRouter from './routers/userRouter';
 import postRouter from './routers/postRouter';
 import commentRouter from './routers/commentRouter';
+import topicRouter from './routers/topicRouter';
 
 class Server {
     // Express App 필드 선언
@@ -72,6 +73,7 @@ class Server {
         this.app.use('/api/user', userRouter);
         this.app.use('/api/post', postRouter);
         this.app.use('/api/comment', commentRouter);
+        this.app.use('/api/topic', topicRouter);
     }
 
     // 서버 구동
