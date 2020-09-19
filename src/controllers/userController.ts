@@ -8,7 +8,7 @@ import Post from '../models/Post';
 import Comment from '../models/Comment';
 import { JWT_SECRET } from '../config/secret';
 
-// 이메일형식 체크
+// 이메일 형식 체크
 const isValidEmail = (email: string): boolean => {
     const regex = new RegExp(
         /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
@@ -16,17 +16,21 @@ const isValidEmail = (email: string): boolean => {
     return regex.test(email);
 };
 
+// 비밀번호 형식 체크
+// 6-16자리 영문, 숫자, 특수문자 조합
+const isValidPassword = (password: string): boolean => {
+    const regex = new RegExp(
+        /^(?=.*[a-zA-Z])(?=.*[!@#$%^*+=-])(?=.*[0-9]).{6,16}/
+    );
+    return regex.test(password);
+};
+
 // 이메일과 비밀번호 존재 여부 및 이메일형식 체크
 const checkEmailPw = (email: string, password: string) => {
-    if (!email) {
-        return { mesesage: '이메일을 넣어주세요.' };
-    }
-    if (!password) {
-        return { mesesage: '비밀번호를 넣어주세요.' };
-    }
-    if (!isValidEmail(email)) {
-        return { mesesage: '이메일 양식에 맞게 넣어주세요.' };
-    }
+    if (!email) return { mesesage: '이메일을 넣어주세요.' };
+    if (!password) return { mesesage: '비밀번호를 넣어주세요.' };
+    if (!isValidEmail(email)) return { mesesage: '이메일 양식에 맞게 넣어주세요.' };
+    if (!isValidPassword(password)) return { mesesage: '비밀번호는 6-16자리 영문, 숫자, 특수문자 조합이어야 합니다.' };
 };
 
 // mbti 체크
@@ -52,6 +56,26 @@ export const login = async (req: Request, res: Response, next: NextFunction) => 
                 .status(200)
                 .json({ token: `Bearer ${token}` });
         }
+    } catch (err) {
+        console.log(err);
+        next(err);
+    }
+};
+
+// GET -> 카카오 회원 인증하기
+export const kakaoValidate  = async (req: Request, res: Response, next: NextFunction)=> {
+    const accessToken: string | undefined = req.get('AccessToken');
+    if (!accessToken) return res.status(401).json({ message: '토큰을 넣어주세요.' });
+    const header: AxiosRequestConfig = { headers: {
+        'Authorization': `Bearer ${accessToken}`,
+        'Content-type': 'application/x-www-form-urlencoded;charset=utf-8'
+    }};
+    try {
+        const userInfo = await axios.get('https://kapi.kakao.com/v2/user/me', header);
+        const { email } = userInfo.data.kakao_account;
+        const exUser: User | null = await User.findOne({ where: { email, snsId: userInfo.data.id } });
+        if (exUser) res.status(200).json({ message: '이미 회원가입된 카카오 계정의 accessToekn입니다.' });
+        else res.status(404).json({ message: '해당 accessToken으로 가입된 회원은 존재하지 않습니다.' });
     } catch (err) {
         console.log(err);
         next(err);

@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { signUp, passportJwtLogin, passportLocalLogin, login, currentUser, updateUser, selectUserPost, selectUserComment, kakao } from '../controllers/userController';
+import { signUp, passportJwtLogin, passportLocalLogin, login, currentUser, updateUser, selectUserPost, selectUserComment, kakao, kakaoValidate } from '../controllers/userController';
 import { verifyJwtToken } from './middleWares/authValidation';
 
 class UserRouter {
@@ -17,8 +17,11 @@ class UserRouter {
         // 로그인하기
         this.router.post('/', passportLocalLogin, login);
         
+        // 카카오 인증
+        this.router.get('/kakaoValidate', kakaoValidate);
+
         // 카카오톡 로그인하기
-        this.router.post('/', kakao, login);
+        this.router.post('/kakaoLogin', kakao, login);
         
         // 로그인된 사용자 정보 확인하기
         this.router.get('/current', passportJwtLogin, currentUser);
