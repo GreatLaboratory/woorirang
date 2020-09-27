@@ -72,8 +72,7 @@ export const kakaoValidate  = async (req: Request, res: Response, next: NextFunc
     }};
     try {
         const userInfo = await axios.get('https://kapi.kakao.com/v2/user/me', header);
-        const { email } = userInfo.data.kakao_account;
-        const exUser: User | null = await User.findOne({ where: { email, snsId: userInfo.data.id } });
+        const exUser: User | null = await User.findOne({ where: { email: userInfo.data.id } });
         if (exUser) res.status(200).json({ message: '이미 회원가입된 카카오 계정의 accessToekn입니다.' });
         else res.status(404).json({ message: '해당 accessToken으로 가입된 회원은 존재하지 않습니다.' });
     } catch (err) {
@@ -92,15 +91,14 @@ export const kakao  = async (req: Request, res: Response, next: NextFunction)=> 
     }};
     try {
         const userInfo = await axios.get('https://kapi.kakao.com/v2/user/me', header);
-        const { email } = userInfo.data.kakao_account;
-        const exUser: User | null = await User.findOne({ where: { email, snsId: userInfo.data.id } });
+        const exUser: User | null = await User.findOne({ where: { email: userInfo.data.id } });
         if (exUser) {
             req.user = exUser;
             next();
         } else {
             const newUser: User = await User.create({ 
                 snsId: userInfo.data.id,
-                email,
+                email: userInfo.data.id,
                 nickname,
                 mbti,
             });
