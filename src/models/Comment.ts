@@ -9,6 +9,8 @@ export default class Comment extends Model {
     public content!: string;
     public likes!: number;
     public isAnonymous!: boolean;
+    public userNickName!: string;
+    public userMbti!: string;
 
     public getComments!: HasManyGetAssociationsMixin<Comment>;
 

@@ -106,22 +106,14 @@ export const getTopicCommentList = async (req: Request, res: Response, next: Nex
                 where: {
                     topicId,
                     commentId: null,
+                    userMbti: mbti,
                 },
                 include: [{ 
-                    model: User, 
-                    where: { mbti },
-                    attributes: ['nickname', 'mbti', 'id'],
-                }, { 
                     model: Comment,
-                    // 아래 코드를 넣으면 Unknown column 'User.nickname' in 'field list 에러가 나옴
-                    // include: [{ // TODO: 이거 해결해야함.
-                    //     model: User,
-                    //     attributes: ['nickname', 'mbti', 'id'],
-                    // }] 
                 }],
                 order: [['createdAt', 'DESC']]
             });
-            res.status(200).json({ meesage: '성공적으로 게시물이 조회되었습니다.', count, data: rows });
+            res.status(200).json({ meesage: '성공적으로 댓글목록이 조회되었습니다.', count, data: rows });
         } else {
             const { count, rows } = await Comment.findAndCountAll({ 
                 limit, 
@@ -131,18 +123,11 @@ export const getTopicCommentList = async (req: Request, res: Response, next: Nex
                     commentId: null,
                 },
                 include: [{ 
-                    model: User, 
-                    attributes: ['nickname', 'mbti', 'id'],
-                }, { 
                     model: Comment,
-                    include: [{ // TODO: 이거 해결해야함.
-                        model: User,
-                        attributes: ['nickname', 'mbti', 'id'],
-                    }] 
                 }],
                 order: [['createdAt', 'DESC']]
             });
-            res.status(200).json({ meesage: '성공적으로 게시물이 조회되었습니다.', count, data: rows });
+            res.status(200).json({ meesage: '성공적으로 댓글목록이 조회되었습니다.', count, data: rows });
         }
     } catch (err) {
         console.log(err);

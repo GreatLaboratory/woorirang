@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
-import sequelize, { Op } from 'sequelize';
+import { Op } from 'sequelize';
 
 import User from '../models/User';
 import Post, { PostType } from '../models/Post';
@@ -211,21 +211,12 @@ export const selectPost = async (req: Request, res: Response, next: NextFunction
             const commentList: Comment[] = await post.getComments({ 
                 where: { commentId: null }, 
                 include: [{ 
-                    model: User, 
-                    attributes: ['id', 'nickname', 'mbti'],
-                }, { 
                     model: Comment,
-                    include: [{ // TODO: 이거 해결해야함.
-                        model: User,
-                        attributes: ['id', 'nickname', 'mbti'],
-                    }] 
                 }] 
             });
-            // const commentList: any = await Comment.sequelize?.query('SELECT `Comment`.`id`, `Comment`.`userId`, `Comment`.`postId`, `Comment`.`topicId`, `Comment`.`commentId`, `Comment`.`content`, `Comment`.`likes`, `Comment`.`createdAt`, `Comment`.`updatedAt`, `User`.`id` AS `User.id`, `User`.`nickname` AS `User.nickname`, `User`.`mbti` AS `User.mbti`, `Comments`.`id` AS `Comments.id`, `Comments`.`userId` AS `Comments.userId`, `Comments`.`postId` AS `Comments.postId`, `Comments`.`topicId` AS `Comments.topicId`, `Comments`.`commentId` AS `Comments.commentId`, `Comments`.`content` AS `Comments.content`, `Comments`.`likes` AS `Comments.likes`, `Comments`.`createdAt` AS `Comments.createdAt`, `Comments`.`updatedAt` AS `Comments.updatedAt`, `User`.`id` AS `User2.id`, `User`.`nickname` AS `User2.nickname`, `User`.`mbti` AS `User2.mbti` FROM `Comments` AS `Comment` LEFT OUTER JOIN `Users` AS `User` ON `Comment`.`userId` = `User`.`id` LEFT OUTER JOIN `Comments` AS `Comments` ON `Comment`.`id` = `Comments`.`commentId` LEFT OUTER JOIN `Users` AS `User2` ON `Comments`.`userId` = `User2`.`id` WHERE (`Comment`.`postId` = 1 AND `Comment`.`commentId` IS NULL);');
             const likePost: LikePost | null = await LikePost.findOne({ where: { postId, userId } });
             const isLiked: boolean = !!likePost;
             res.status(200).json({ meesage: '성공적으로 게시물이 조회되었습니다.', data: { isLiked, post, commentList } }); 
-            // res.status(200).json({ meesage: '성공적으로 게시물이 조회되었습니다.', data: { post, commentList } }); 
         } else {
             res.status(404).json({ message: '해당하는 postId의 게시물이 존재하지 않습니다.' });
         }

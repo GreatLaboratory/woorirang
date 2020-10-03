@@ -168,6 +168,14 @@ export const init = (): Sequelize => {
             type: new DataTypes.STRING(150),
             allowNull: false,
         },
+        userNickName: {
+            type: new DataTypes.STRING(150),
+            allowNull: false,
+        },
+        userMbti: {
+            type: new DataTypes.STRING(150),
+            allowNull: false,
+        },
         likes: {
             type: DataTypes.INTEGER,
             allowNull: false,
@@ -262,12 +270,23 @@ export const init = (): Sequelize => {
     });
     Comment.belongsTo(User, {
         foreignKey: 'userId',
-        // as: 'User'
     });
-    // Comment.belongsTo(User, {
-    //     foreignKey: 'userId',
-    //     as: 'CommentsUser'
-    // });
+
+    // Comment : Comment = 1 : N
+    Comment.hasMany(Comment, {
+        foreignKey: 'commentId'
+    });
+    Comment.belongsTo(Comment, {
+        foreignKey: 'commentId'
+    });
+
+    // Post : Comment = 1 : N
+    Post.hasMany(Comment, {
+        foreignKey: 'postId'
+    });
+    Comment.belongsTo(Post, {
+        foreignKey: 'postId'
+    });
     
     // User : Post = 1 : N
     User.hasMany(Post, {
@@ -300,14 +319,6 @@ export const init = (): Sequelize => {
     LikeComment.belongsTo(User, { 
         foreignKey: 'userId' 
     });
-    
-    // Post : Comment = 1 : N
-    Post.hasMany(Comment, {
-        foreignKey: 'postId'
-    });
-    Comment.belongsTo(Post, {
-        foreignKey: 'postId'
-    });
 
     // Post : Image = 1 : N
     Post.hasMany(Image, {
@@ -331,14 +342,6 @@ export const init = (): Sequelize => {
     });
     Image.belongsTo(Topic, {
         foreignKey: 'topicId'
-    });
-    
-    // Comment : Comment = 1 : N
-    Comment.hasMany(Comment, {
-        foreignKey: 'commentId'
-    });
-    Comment.belongsTo(Comment, {
-        foreignKey: 'commentId'
     });
 
     return sequelize;
