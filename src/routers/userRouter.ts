@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { signUp, passportJwtLogin, passportLocalLogin, login, currentUser, updateUser, selectUserPost, selectUserComment, kakao, kakaoValidate } from '../controllers/userController';
+import { signUp, passportJwtLogin, passportLocalLogin, login, currentUser, updateUser, selectUserPost, selectUserComment, kakao, kakaoValidate, resetPassword } from '../controllers/userController';
 import { verifyJwtToken } from './middleWares/authValidation';
 
 class UserRouter {
@@ -34,6 +34,9 @@ class UserRouter {
         
         // 사용자가 등록한 게시물 목록 조회하기
         this.router.get('/commentList', verifyJwtToken, selectUserComment);
+        
+        // 비밀번호 재발급
+        this.router.post('/resetPasswrod', verifyJwtToken, resetPassword);
     }
 }
 

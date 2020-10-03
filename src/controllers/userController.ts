@@ -2,11 +2,13 @@ import { Request, Response, NextFunction } from 'express';
 import passport from 'passport';
 import jwt from 'jsonwebtoken';
 import axios, { AxiosRequestConfig } from 'axios';
+import * as bcrypt from 'bcrypt-nodejs';
+import nodemailer from 'nodemailer';
 
 import User, { MBTI } from '../models/User';
 import Post from '../models/Post';
 import Comment from '../models/Comment';
-import { JWT_SECRET } from '../config/secret';
+import { JWT_SECRET, GMAIL_ID, GMAIL_PASSWORD } from '../config/secret';
 
 // 이메일 형식 체크
 const isValidEmail = (email: string): boolean => {
@@ -36,6 +38,16 @@ const checkEmailPw = (email: string, password: string) => {
 // mbti 체크
 const isValidMbti = (mbti: string): boolean => {
     return Object.values(MBTI).includes(mbti);
+};
+
+// 랜덤 비밀번호 생성
+const makeRandomPassword = (length: number): string => {
+    let result: string = '';
+    const characters: string = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+    for (let i = 0; i < length; i++) {
+        result += characters.charAt(Math.floor(Math.random() * characters.length));
+    }
+    return result;
 };
 
 // POST -> passport 로그인
@@ -215,6 +227,42 @@ export const selectUserComment  = async (req: Request, res: Response, next: Next
             order: [['createdAt', 'DESC']]
         });
         res.status(200).json({ message: '성공적으로 조회되었습니다.', data: commentList });
+    } catch (err) {
+        console.log(err);
+        next(err);
+    }
+};
+
+// POST -> 비밀번호 재발급
+export const resetPassword  = async (req: Request, res: Response, next: NextFunction)=> {
+    const user: User = req.user as User;
+    const { email } = req.body;
+    try {
+        const newPassword: string = makeRandomPassword(6);
+        const salt: string = bcrypt.genSaltSync();
+        user.password = bcrypt.hashSync(newPassword, salt);
+        // user.password = newPassword;
+
+        const transporter = nodemailer.createTransport({
+            service: 'gmail',
+            // host를 gmail로 설정
+            host: 'smtp.gmail.com',
+            port: 587,
+            secure: false, // true for 465, false for other ports
+            auth: {
+                user: GMAIL_ID, // generated ethereal user
+                pass: GMAIL_PASSWORD, // generated ethereal password
+            },
+        });
+        await transporter.sendMail({
+            from: `"우리랑 팀" <${GMAIL_ID}>`, // sender address
+            to: email, // list of receivers
+            subject: '<우리랑> 비밀번호 재발급 ', // Subject line
+            text: `재발급된 비밀번호는 ${newPassword} 입니다.`, // plain text body
+        });
+        
+        await user.save();
+        res.status(200).json({ message: '성공적으로 비밀번호가 재발급되었습니다.' });
     } catch (err) {
         console.log(err);
         next(err);
