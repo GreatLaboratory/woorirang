@@ -111,6 +111,8 @@ export const kakao  = async (req: Request, res: Response, next: NextFunction)=> 
             req.user = exUser;
             next();
         } else {
+            const userByNickname: User | null = await User.findOne({ where: { nickname } });
+            if (userByNickname) return res.status(400).json({ message: '이미 가입된 닉네임 입니다.' });
             const newUser: User = await User.create({ 
                 snsId: userInfo.data.id,
                 email: userInfo.data.id,
@@ -133,8 +135,10 @@ export const signUp = async (req: Request, res: Response, next: NextFunction) =>
     if (error) return res.status(400).json(error);
     if (!mbti || !isValidMbti(mbti)) return res.status(409).json({ message: '유효한 mbti타입이 아닙니다.' });
     try {
-        const user: User | null = await User.findOne({ where: { email } });
-        if (user) return res.status(400).json({ message: '이미 가입된 이메일 입니다.' });
+        const userByEmail: User | null = await User.findOne({ where: { email } });
+        const userByNickname: User | null = await User.findOne({ where: { nickname } });
+        if (userByEmail) return res.status(400).json({ message: '이미 가입된 이메일 입니다.' });
+        if (userByNickname) return res.status(400).json({ message: '이미 가입된 닉네임 입니다.' });
         const createdUser: User = await User.create({ email, password, mbti, nickname });
         
         // sequelize로 만들어진 객체는 꼭 .toJSON()을 붙혀서 콘솔찍어야 잘 찍힌다.
