@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { signUp, passportJwtLogin, passportLocalLogin, login, currentUser, updateUser, selectUserPost, selectUserCommentPost, kakao, kakaoValidate, resetPassword, getNoticeList, makeNoticeChecked } from '../controllers/userController';
+import { signUp, passportJwtLogin, passportLocalLogin, login, currentUser, updateUser, selectUserPost, selectUserCommentPost, kakao, kakaoValidate, resetPassword, getNoticeList, makeNoticeChecked, renewFcmToken } from '../controllers/userController';
 import { verifyJwtToken } from './middleWares/authValidation';
 
 class UserRouter {
@@ -43,6 +43,9 @@ class UserRouter {
         
         // 알림 확인
         this.router.post('/makeNoticeChecked', makeNoticeChecked);
+        
+        // FCM Token 갱신
+        this.router.post('/renewFcmToken', verifyJwtToken, renewFcmToken);
     }
 }
 

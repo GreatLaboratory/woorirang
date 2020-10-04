@@ -342,3 +342,18 @@ export const makeNoticeChecked  = async (req: Request, res: Response, next: Next
         next(err);
     }
 };
+
+// POST -> FCM Token 갱신
+export const renewFcmToken  = async (req: Request, res: Response, next: NextFunction)=> {
+    const user: User = req.user as User;
+    const { fcmToken } = req.body;
+    try {
+        user.fcmToken = fcmToken;
+        const result: User = await user.save();
+        if (result) return res.status(201).json({ message: '성공적으로 토큰이 갱신되었습니다.' });
+        else return res.status(404).json({ message: '토큰 갱신 과정에서 에러가 발생했습니다.' });
+    } catch (err) {
+        console.log(err);
+        next(err);
+    }
+};

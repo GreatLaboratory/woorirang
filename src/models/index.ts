@@ -44,6 +44,11 @@ export const init = (): Sequelize => {
             type: new DataTypes.STRING(10),
             allowNull: false,
         },
+        fcmToken: {
+            type: new DataTypes.STRING(300),
+            allowNull: false,
+            defaultValue: '',
+        },
     }, {
         sequelize,
         engine: 'InnoDB',
