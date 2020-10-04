@@ -6,6 +6,7 @@ import LikePost from './LikePost';
 import LikeComment from './LikeComment';
 import Topic from './Topic';
 import Image from './Image';
+import Notice from './Notice';
 import { MYSQL_URI, MYSQL_DATABASE, MYSQL_USERNAME, MYSQL_PASSWORD } from '../config/secret';
 import * as bcrypt from 'bcrypt-nodejs';
 
@@ -262,6 +263,69 @@ export const init = (): Sequelize => {
         timestamps: false,
         engine: 'InnoDB',
         charset: 'utf8',
+    });
+    
+    Notice.init({
+        id: {
+            type: DataTypes.INTEGER.UNSIGNED,
+            autoIncrement: true,
+            primaryKey: true,
+            allowNull: false,
+        },
+        userId: {
+            type: DataTypes.INTEGER.UNSIGNED,
+            allowNull: false,
+        },
+        commenterId: {
+            type: DataTypes.INTEGER.UNSIGNED,
+            allowNull: false,
+        },
+        postId: {
+            type: DataTypes.INTEGER.UNSIGNED,
+            allowNull: true,
+        },
+        topicId: {
+            type: DataTypes.INTEGER.UNSIGNED,
+            allowNull: true,
+        },
+        message: {
+            type: new DataTypes.STRING(200),
+            allowNull: false,
+        },
+        isChecked: {
+            type: DataTypes.BOOLEAN,
+            allowNull: false,
+            defaultValue: false,
+        },
+        isAnonymous: {
+            type: DataTypes.BOOLEAN,
+            allowNull: false,
+            defaultValue: true,
+        },
+    }, {
+        sequelize,
+        engine: 'InnoDB',
+        charset: 'utf8',
+    });
+
+    // User : Notice = 1 : N
+    // User.hasMany(Notice, {
+    //     foreignKey: 'userId',
+    //     as: 'User'
+    // });
+    // Notice.belongsTo(User, {
+    //     foreignKey: 'userId',
+    //     as: 'User'
+    // });
+
+    // User : Notice = 1 : 1
+    User.hasOne(Notice, {
+        foreignKey: 'commenterId',
+        // as: 'CommentUser'
+    });
+    Notice.belongsTo(User, {
+        foreignKey: 'commenterId',
+        // as: 'CommentUser'
     });
 
     // User : Comment = 1 : N

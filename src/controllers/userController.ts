@@ -8,7 +8,10 @@ import nodemailer from 'nodemailer';
 import User, { MBTI } from '../models/User';
 import Post from '../models/Post';
 import Comment from '../models/Comment';
+import Image from '../models/Image';
 import { JWT_SECRET, GMAIL_ID, GMAIL_PASSWORD } from '../config/secret';
+import Topic from '../models/Topic';
+import Notice from '../models/Notice';
 
 // 이메일 형식 체크
 const isValidEmail = (email: string): boolean => {
@@ -204,6 +207,10 @@ export const selectUserPost  = async (req: Request, res: Response, next: NextFun
     const page: number | undefined = req.query.page ? parseInt(req.query.page.toString(), 10) : 1;
     try {
         const postList: Post[] = await user.getPosts({ 
+            include: [{ 
+                model: Image,
+                attributes: ['url'] 
+            }],
             limit, 
             offset: limit * (page - 1 ),
             order: [['createdAt', 'DESC']]
@@ -215,18 +222,39 @@ export const selectUserPost  = async (req: Request, res: Response, next: NextFun
     }
 };
 
-// GET -> 내가 쓴 댓글 목록 조회
-export const selectUserComment  = async (req: Request, res: Response, next: NextFunction)=> {
+// GET -> 내가 댓글 쓴 게시물 목록 조회
+export const selectUserCommentPost  = async (req: Request, res: Response, next: NextFunction)=> {
     const user: User = req.user as User;
     const limit: number | undefined = req.query.limit ? parseInt(req.query.limit.toString(), 10) : 10;
     const page: number | undefined = req.query.page ? parseInt(req.query.page.toString(), 10) : 1;
     try {
         const commentList: Comment[] = await user.getComments({ 
-            limit, 
-            offset: limit * (page - 1 ),
-            order: [['createdAt', 'DESC']]
+            include: [{
+                model: Post,
+                include: [{ 
+                    model: Image,
+                    attributes: ['url'] 
+                }]
+            }, {
+                model: Topic,
+                include: [{ 
+                    model: Image,
+                    attributes: ['url'] 
+                }]
+            }],
         });
-        res.status(200).json({ message: '성공적으로 조회되었습니다.', data: commentList });
+        
+        const temp1 = commentList.filter(comment => comment.postId !== null)
+            .filter((value, index, array) => 
+                array.findIndex((element) => element.postId === value.postId) === index);
+        const temp2 = commentList.filter(comment => comment.topicId !== null)
+            .filter((value, index, array) => 
+                array.findIndex((element) => element.topicId === value.topicId) === index);
+                
+        const result = [...temp1, ...temp2].map((comment: any) => (comment.Post ? { ...comment.Post.toJSON(), category: 'post' } : { ...comment.Topic.toJSON(), category: 'topic' }));
+        result.sort((a, b) => b.createdAt - a.createdAt);
+        const finalResult = result.slice((page - 1) * limit, page * limit);
+        res.status(200).json({ message: '성공적으로 조회되었습니다.', data: finalResult });
     } catch (err) {
         console.log(err);
         next(err);
@@ -263,6 +291,48 @@ export const resetPassword  = async (req: Request, res: Response, next: NextFunc
         
         await user.save();
         res.status(200).json({ message: '성공적으로 비밀번호가 재발급되었습니다.' });
+    } catch (err) {
+        console.log(err);
+        next(err);
+    }
+};
+
+// GET -> 알림목록 조회
+export const getNoticeList  = async (req: Request, res: Response, next: NextFunction)=> {
+    const user: User = req.user as User;
+    const limit: number | undefined = req.query.limit ? parseInt(req.query.limit.toString(), 10) : 10;
+    const page: number | undefined = req.query.page ? parseInt(req.query.page.toString(), 10) : 1;
+    try {
+        const { count, rows } = await Notice.findAndCountAll({
+            where: {
+                userId: user.id
+            },
+            include: [{
+                model: User,
+                attributes: ['nickname', 'mbti']
+            }],
+            limit, 
+            offset: limit * (page - 1 ),
+        });
+
+        res.status(200).json({ meesage: '성공적으로 게시물이 조회되었습니다.', count, data: rows });
+    } catch (err) {
+        console.log(err);
+        next(err);
+    }
+};
+
+// POST -> 알림 확인
+export const makeNoticeChecked  = async (req: Request, res: Response, next: NextFunction)=> {
+    const { noticeId } = req.body;
+    try {
+        const notice = await Notice.findByPk(noticeId);
+        if (!notice) return res.status(404).json({ message: '해당하는 아이디의 알림이 존재하지 않습니다.' });
+        else {
+            notice.isChecked = true;
+            await notice.save();
+            res.status(201).json({ message: '알림이 체크되었습니다.' });
+        }
     } catch (err) {
         console.log(err);
         next(err);

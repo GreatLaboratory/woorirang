@@ -5,6 +5,7 @@ import Post from '../models/Post';
 import Comment from '../models/Comment';
 import LikeComment from '../models/LikeComment';
 import Topic from '../models/Topic';
+import Notice from '../models/Notice';
 
 // POST -> 자유게시판 게시물 || 대댓글달기
 export const createCommentToPost = async (req: Request, res: Response, next: NextFunction) => {
@@ -21,10 +22,13 @@ export const createCommentToPost = async (req: Request, res: Response, next: Nex
             post.commentNum++;
             await post.save();
         }
+        const isMyComment: boolean = userId === post.userId;
         if (commentId) {
             comment = await Comment.create({ userId, postId: parseInt(postId), commentId: parseInt(commentId.toString()), content, isAnonymous, userNickName: user.nickname, userMbti: user.mbti });
+            if (!isMyComment) await Notice.create({ userId: post.userId, commenterId: userId, topicId: null, postId, message: '님이 내 댓글에 댓글을 남기셨어요!', isAnonymous });
         } else {
             comment = await Comment.create({ userId, postId: parseInt(postId), content, isAnonymous, userNickName: user.nickname, userMbti: user.mbti });
+            if (!isMyComment) await Notice.create({ userId: post.userId, commenterId: userId, topicId: null, postId, message: '님이 내 글에 댓글을 남기셨어요!', isAnonymous });
         }
         res.status(201).json({ messag: '성공적으로 댓글이 달렸습니다.', data: comment });
     } catch (err) {
@@ -49,10 +53,13 @@ export const createCommentToTopic = async (req: Request, res: Response, next: Ne
             topic.commentNum++;
             await topic.save();
         }
+        const isMyComment: boolean = userId === topic.userId;
         if (commentId) {
             comment = await Comment.create({ userId, topicId: parseInt(topicId), commentId: parseInt(commentId.toString()), content, isAnonymous, userNickName: user.nickname, userMbti: user.mbti });
+            if (!isMyComment) await Notice.create({ userId: topic.userId, commenterId: userId, topicId, postId: null, message: '님이 내 댓글에 댓글을 남기셨어요!', isAnonymous });
         } else {
             comment = await Comment.create({ userId, topicId: parseInt(topicId), content, isAnonymous, userNickName: user.nickname, userMbti: user.mbti });
+            if (!isMyComment) await Notice.create({ userId: topic.userId, commenterId: userId, topicId, postId: null, message: '님이 내 글에 댓글을 남기셨어요!', isAnonymous });
         }
         res.status(201).json({ messag: '성공적으로 댓글이 달렸습니다.', data: comment });
     } catch (err) {

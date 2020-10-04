@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { signUp, passportJwtLogin, passportLocalLogin, login, currentUser, updateUser, selectUserPost, selectUserComment, kakao, kakaoValidate, resetPassword } from '../controllers/userController';
+import { signUp, passportJwtLogin, passportLocalLogin, login, currentUser, updateUser, selectUserPost, selectUserCommentPost, kakao, kakaoValidate, resetPassword, getNoticeList, makeNoticeChecked } from '../controllers/userController';
 import { verifyJwtToken } from './middleWares/authValidation';
 
 class UserRouter {
@@ -33,10 +33,16 @@ class UserRouter {
         this.router.get('/postList', verifyJwtToken, selectUserPost);
         
         // 사용자가 등록한 게시물 목록 조회하기
-        this.router.get('/commentList', verifyJwtToken, selectUserComment);
+        this.router.get('/commentList', verifyJwtToken, selectUserCommentPost);
         
         // 비밀번호 재발급
         this.router.post('/resetPasswrod', verifyJwtToken, resetPassword);
+        
+        // 알림목록 조회
+        this.router.get('/noticeList', verifyJwtToken, getNoticeList);
+        
+        // 알림 확인
+        this.router.post('/makeNoticeChecked', makeNoticeChecked);
     }
 }
 
