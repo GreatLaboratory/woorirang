@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { signUp, passportJwtLogin, passportLocalLogin, login, currentUser, updateUser, selectUserPost, selectUserCommentPost, kakao, kakaoValidate, resetPassword, getNoticeList, makeNoticeChecked, renewFcmToken } from '../controllers/userController';
+import { signUp, passportJwtLogin, passportLocalLogin, login, currentUser, updateUser, selectUserPost, selectUserCommentPost, kakao, kakaoValidate, resetPassword, getNoticeList, makeNoticeChecked, renewFcmToken, checkOverlapEmail } from '../controllers/userController';
 import { verifyJwtToken } from './middleWares/authValidation';
 
 class UserRouter {
@@ -46,6 +46,9 @@ class UserRouter {
         
         // FCM Token 갱신
         this.router.post('/renewFcmToken', verifyJwtToken, renewFcmToken);
+
+        // 이메일 중복 체크
+        this.router.post('/checkOverlapEmail', checkOverlapEmail);
     }
 }
 

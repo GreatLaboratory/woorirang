@@ -128,6 +128,19 @@ export const kakao  = async (req: Request, res: Response, next: NextFunction)=> 
     }
 };
 
+// POST -> 이메일 중복 확인
+export const checkOverlapEmail = async (req: Request, res: Response, next: NextFunction) => {
+    const { email } = req.body;
+    try {
+        const userByEmail: User | null = await User.findOne({ where: { email } });
+        if (userByEmail) return res.status(400).json({ message: '이미 가입된 이메일 입니다.' });
+        else return res.status(200).json({ message: '사용가능한 이메일 입니다.' });
+    } catch (err) {
+        console.log(err);
+        next(err);
+    }
+};
+
 // POST -> 회원가입
 export const signUp = async (req: Request, res: Response, next: NextFunction) => {
     const { email, password, mbti, nickname } = req.body;
