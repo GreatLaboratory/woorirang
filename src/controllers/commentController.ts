@@ -6,6 +6,7 @@ import Comment from '../models/Comment';
 import LikeComment from '../models/LikeComment';
 import Topic from '../models/Topic';
 import Notice from '../models/Notice';
+import admin, { notificationOption } from '../config/firebase';
 
 // POST -> 자유게시판 게시물 || 대댓글달기
 export const createCommentToPost = async (req: Request, res: Response, next: NextFunction) => {
@@ -18,18 +19,36 @@ export const createCommentToPost = async (req: Request, res: Response, next: Nex
     try {
         const post: Post | null = await Post.findByPk(postId);
         if (!post) return res.status(404).json({ meesage: '해당하는 아이디의 게시물이 존재하지 않습니다.' });
-        else {
-            post.commentNum++;
-            await post.save();
-        }
+        
+        const postUser: User | null = await User.findByPk(post.userId);
+        if (!postUser) return res.status(404).json({ meesage: '게시물을 작성한 사용자가 존재하지 않습니다.' });
+
         const isMyComment: boolean = userId === post.userId;
+        let message;
         if (commentId) {
+            message = {
+                data: {
+                    title: '우리랑 대댓글 알림',
+                    body: `${isAnonymous ? '익명' : user.nickname}님이 내 댓글에 댓글을 남기셨어요!`,
+                }
+            };
             comment = await Comment.create({ userId, postId: parseInt(postId), commentId: parseInt(commentId.toString()), content, isAnonymous, userNickName: user.nickname, userMbti: user.mbti });
-            if (!isMyComment) await Notice.create({ userId: post.userId, commenterId: userId, topicId: null, postId, message: '님이 내 댓글에 댓글을 남기셨어요!', isAnonymous });
+            if (!isMyComment) await Notice.create({ userId: post.userId, commenterId: userId, topicId: null, postId, message: `${isAnonymous ? '익명' : user.nickname}님이 내 댓글에 댓글을 남기셨어요!`, isAnonymous });
         } else {
+            message = {
+                data: {
+                    title: '우리랑 댓글 알림',
+                    body: `${isAnonymous ? '익명' : user.nickname}님이 내 글에 댓글을 남기셨어요!`,
+                }
+            };
             comment = await Comment.create({ userId, postId: parseInt(postId), content, isAnonymous, userNickName: user.nickname, userMbti: user.mbti });
-            if (!isMyComment) await Notice.create({ userId: post.userId, commenterId: userId, topicId: null, postId, message: '님이 내 글에 댓글을 남기셨어요!', isAnonymous });
+            if (!isMyComment) await Notice.create({ userId: post.userId, commenterId: userId, topicId: null, postId, message: `${isAnonymous ? '익명' : user.nickname}님이 내 글에 댓글을 남기셨어요!`, isAnonymous });
         }
+        post.commentNum++;
+        await post.save();
+        
+        await admin.messaging().sendToDevice(postUser.fcmToken, message, notificationOption);
+
         res.status(201).json({ messag: '성공적으로 댓글이 달렸습니다.', data: comment });
     } catch (err) {
         console.log(err);
@@ -49,18 +68,37 @@ export const createCommentToTopic = async (req: Request, res: Response, next: Ne
     try {
         const topic: Topic | null = await Topic.findByPk(topicId);
         if (!topic) return res.status(404).json({ meesage: '해당하는 아이디의 게시물이 존재하지 않습니다.' });
-        else {
-            topic.commentNum++;
-            await topic.save();
-        }
+        
+        const topicUser: User | null = await User.findByPk(topic.userId);
+        if (!topicUser) return res.status(404).json({ meesage: '토픽을 작성한 사용자가 존재하지 않습니다.' });
+        
         const isMyComment: boolean = userId === topic.userId;
+        let message;
         if (commentId) {
+            message = {
+                data: {
+                    title: '우리랑 대댓글 알림',
+                    body: `${isAnonymous ? '익명' : user.nickname}님이 내 댓글에 댓글을 남기셨어요!`,
+                }
+            };
             comment = await Comment.create({ userId, topicId: parseInt(topicId), commentId: parseInt(commentId.toString()), content, isAnonymous, userNickName: user.nickname, userMbti: user.mbti });
-            if (!isMyComment) await Notice.create({ userId: topic.userId, commenterId: userId, topicId, postId: null, message: '님이 내 댓글에 댓글을 남기셨어요!', isAnonymous });
+            if (!isMyComment) await Notice.create({ userId: topic.userId, commenterId: userId, topicId, postId: null, message: `${isAnonymous ? '익명' : user.nickname}님이 내 댓글에 댓글을 남기셨어요!`, isAnonymous });
         } else {
+            message = {
+                data: {
+                    title: '우리랑 댓글 알림',
+                    body: `${isAnonymous ? '익명' : user.nickname}님이 내 글에 댓글을 남기셨어요!`,
+                }
+            };
             comment = await Comment.create({ userId, topicId: parseInt(topicId), content, isAnonymous, userNickName: user.nickname, userMbti: user.mbti });
-            if (!isMyComment) await Notice.create({ userId: topic.userId, commenterId: userId, topicId, postId: null, message: '님이 내 글에 댓글을 남기셨어요!', isAnonymous });
+            if (!isMyComment) await Notice.create({ userId: topic.userId, commenterId: userId, topicId, postId: null, message: `${isAnonymous ? '익명' : user.nickname}님이 내 글에 댓글을 남기셨어요!`, isAnonymous });
         }
+
+        topic.commentNum++;
+        await topic.save();
+
+        await admin.messaging().sendToDevice(topicUser.fcmToken, message, notificationOption);
+
         res.status(201).json({ messag: '성공적으로 댓글이 달렸습니다.', data: comment });
     } catch (err) {
         console.log(err);
