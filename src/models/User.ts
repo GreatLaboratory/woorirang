@@ -1,6 +1,7 @@
 import { Model, HasManyGetAssociationsMixin, Association } from 'sequelize';
 import Post from './Post';
 import Comment from './Comment';
+import TestResult from './TestResult';
 import * as bcrypt from 'bcrypt-nodejs';
 
 export const MBTI =  {
@@ -37,6 +38,7 @@ export default class User extends Model {
 
     public getPosts!: HasManyGetAssociationsMixin<Post>;
     public getComments!: HasManyGetAssociationsMixin<Comment>;
+    public getTestResults!: HasManyGetAssociationsMixin<TestResult>;
 
     public readonly createdAt!: Date;
     public readonly updatedAt!: Date;
@@ -44,5 +46,6 @@ export default class User extends Model {
     public static associations: {
         posts: Association<User, Post>;
         comments: Association<User, Comment>;
+        testResults: Association<User, TestResult>;
     };
 }

@@ -12,6 +12,8 @@ import Image from '../models/Image';
 import { JWT_SECRET, GMAIL_ID, GMAIL_PASSWORD } from '../config/secret';
 import Topic from '../models/Topic';
 import Notice from '../models/Notice';
+import Test from '../models/Test';
+import TestResult from '../models/TestResult';
 
 // 이메일 형식 체크
 const isValidEmail = (email: string): boolean => {
@@ -217,6 +219,67 @@ export const updateUser  = async (req: Request, res: Response, next: NextFunctio
     }
 };
 
+// GET -> 사용자의 검사 유형 모아보기
+export const getTestResultList = async (req: Request, res: Response, next: NextFunction)=> {
+    const user: User = req.user as User;
+    try {
+        const result: TestResult[] = await user.getTestResults({
+            include: [{
+                model: Test
+            }, {
+                model: Image
+            }]
+        });
+        res.status(200).json(result);
+    } catch (err) {
+        console.log(err);
+        next(err);
+    }
+};
+
+// POST -> 사용자의 검사 유형 결과 등록하기
+export const createTestResult = async (req: Request, res: Response, next: NextFunction)=> {
+    const user: User = req.user as User;
+    const { testId } = req.params;
+    const { resultText } = req.body;
+    const files: any = req.files;
+    try {
+        const testResult: TestResult = await TestResult.create({
+            userId: user.id,
+            testId: parseInt(testId),
+            resultText,
+        });
+        files.forEach(async (file: any) => await Image.create({ testResultId: testResult.id, url: file.location }));
+        res.status(201).json({ meesage: '성공적으로 검사 유형 결과가 등록되었습니다.', data: testResult });
+    } catch (err) {
+        console.log(err);
+        next(err);
+    }
+};
+
+// POST -> 사용자의 검사 유형 결과 수정하기
+export const updateTestResult = async (req: Request, res: Response, next: NextFunction)=> {
+    const user: User = req.user as User;
+    const { testId } = req.params;
+    const { resultText, removeImageIdList } = req.body;
+    const files: any = req.files;
+    try {
+        const testResult: TestResult | null = await TestResult.findOne({ where: { userId: user.id, testId } });
+        if (!testResult) return res.status(404).json({ meesage: '해당하는 테스트 아이디의 검사 결과가 존재하지 않습니다.' });
+
+        testResult.resultText = resultText;
+        await testResult.save();
+
+        removeImageIdList.forEach(async (imageId: string) => await Image.destroy({ where: { id: parseInt(imageId), testResultId: testResult.id } }));
+        files.forEach(async (file: any) => await Image.create({ testResultId: testResult.id, url: file.location }));
+
+        res.status(201).json({ meesage: '성공적으로 검사 유형 결과가 수정되었습니다.' });
+    } catch (err) {
+        console.log(err);
+        next(err);
+    }
+};
+
 // GET -> 사용자가 등록한 게시물 목록 조회하기
 export const selectUserPost  = async (req: Request, res: Response, next: NextFunction)=> {
     const user: User = req.user as User;
@@ -332,7 +395,7 @@ export const getNoticeList  = async (req: Request, res: Response, next: NextFunc
             offset: limit * (page - 1 ),
         });
 
-        res.status(200).json({ meesage: '성공적으로 게시물이 조회되었습니다.', count, data: rows });
+        res.status(200).json({ meesage: '성공적으로 알림목록이 조회되었습니다.', count, data: rows });
     } catch (err) {
         console.log(err);
         next(err);

@@ -1,6 +1,7 @@
 import { Router } from 'express';
-import { signUp, passportJwtLogin, passportLocalLogin, login, currentUser, updateUser, selectUserPost, selectUserCommentPost, kakao, kakaoValidate, resetPassword, getNoticeList, makeNoticeChecked, renewFcmToken, checkOverlapEmail } from '../controllers/userController';
+import { signUp, passportJwtLogin, passportLocalLogin, login, currentUser, updateUser, selectUserPost, selectUserCommentPost, kakao, kakaoValidate, resetPassword, getNoticeList, makeNoticeChecked, renewFcmToken, checkOverlapEmail, getTestResultList, createTestResult, updateTestResult } from '../controllers/userController';
 import { verifyJwtToken } from './middleWares/authValidation';
+import { testResultUploader } from './middleWares/uploader';
 
 class UserRouter {
     public router: Router;
@@ -49,6 +50,15 @@ class UserRouter {
 
         // 이메일 중복 체크
         this.router.post('/checkOverlapEmail', checkOverlapEmail);
+        
+        // 사용자의 검사 유형 모아보기
+        this.router.get('/getTestResultList', verifyJwtToken, getTestResultList);
+        
+        // 사용자의 검사 유형 결과 등록하기
+        this.router.post('/createTestResult/:testId', verifyJwtToken, testResultUploader.array('images', 3), createTestResult);
+        
+        // 사용자의 검사 유형 결과 수정하기
+        this.router.post('/updateTestResult/:testId', verifyJwtToken, testResultUploader.array('images', 3), updateTestResult);
     }
 }
 

@@ -7,6 +7,8 @@ import LikeComment from './LikeComment';
 import Topic from './Topic';
 import Image from './Image';
 import Notice from './Notice';
+import Test from './Test';
+import TestResult from './TestResult';
 import { MYSQL_URI, MYSQL_DATABASE, MYSQL_USERNAME, MYSQL_PASSWORD } from '../config/secret';
 import * as bcrypt from 'bcrypt-nodejs';
 
@@ -259,6 +261,10 @@ export const init = (): Sequelize => {
             type: DataTypes.INTEGER.UNSIGNED,
             allowNull: true,
         },
+        testResultId: {
+            type: DataTypes.INTEGER.UNSIGNED,
+            allowNull: true,
+        },
         url: {
             type: new DataTypes.STRING(200),
             allowNull: false,
@@ -313,24 +319,84 @@ export const init = (): Sequelize => {
         charset: 'utf8',
     });
 
-    // User : Notice = 1 : N
-    // User.hasMany(Notice, {
-    //     foreignKey: 'userId',
-    //     as: 'User'
-    // });
-    // Notice.belongsTo(User, {
-    //     foreignKey: 'userId',
-    //     as: 'User'
-    // });
+    Test.init({
+        id: {
+            type: DataTypes.INTEGER.UNSIGNED,
+            autoIncrement: true,
+            primaryKey: true,
+            allowNull: false,
+        },
+        title: {
+            type: new DataTypes.STRING(100),
+            allowNull: false,
+        },
+        url: {
+            type: new DataTypes.STRING(200),
+            allowNull: false,
+        },
+    }, {
+        sequelize,
+        timestamps: false,
+        engine: 'InnoDB',
+        charset: 'utf8',
+    });
+
+    TestResult.init({
+        id: {
+            type: DataTypes.INTEGER.UNSIGNED,
+            autoIncrement: true,
+            primaryKey: true,
+            allowNull: false,
+        },
+        userId: {
+            type: DataTypes.INTEGER.UNSIGNED,
+            allowNull: false,
+        },
+        testId: {
+            type: DataTypes.INTEGER.UNSIGNED,
+            allowNull: false,
+        },
+        resultText: {
+            type: new DataTypes.STRING(100),
+            allowNull: true,
+        },
+    }, {
+        sequelize,
+        timestamps: false,
+        engine: 'InnoDB',
+        charset: 'utf8',
+    });
+    
+    // User : TestResult = 1 : N
+    User.hasMany(TestResult, {
+        foreignKey: 'userId',
+    });
+    TestResult.belongsTo(User, {
+        foreignKey: 'userId',
+    });
+
+    // TestResult : Image = 1 : N
+    TestResult.hasMany(Image, {
+        foreignKey: 'testResultId'
+    });
+    Image.belongsTo(TestResult, {
+        foreignKey: 'testResultId'
+    });
+
+    // Test : TestResult = 1 : 1
+    Test.hasOne(TestResult, {
+        foreignKey: 'testId',
+    });
+    TestResult.belongsTo(Test, {
+        foreignKey: 'testId',
+    });
 
     // User : Notice = 1 : 1
     User.hasOne(Notice, {
         foreignKey: 'commenterId',
-        // as: 'CommentUser'
     });
     Notice.belongsTo(User, {
         foreignKey: 'commenterId',
-        // as: 'CommentUser'
     });
 
     // User : Comment = 1 : N
