@@ -5,7 +5,7 @@ const serviceAccount: any = firebaseAccount;
 
 admin.initializeApp({
     credential: admin.credential.cert(serviceAccount),
-    databaseURL: '',
+    databaseURL: 'https://urirang-e2567.firebaseio.com',
 }); 
 
 export const notificationOption = {
