@@ -201,15 +201,12 @@ export const currentUser  = async (req: Request, res: Response, next: NextFuncti
 
 // PUT -> 현재 로그인된 사용자 정보 수정하기
 export const updateUser  = async (req: Request, res: Response, next: NextFunction)=> {
-    const { email } = req.body;
-    if (!isValidEmail(email)) return res.status(400).json({ mesesage: '이메일 양식에 맞게 넣어주세요.' });
-
+    const { nickname, mbti } = req.body;
     const user: User = req.user as User;
-    const userId: number = user.id;
     try {
-        const updateUser: [number, User[]] = await User.update({ email }, { where: { id: userId } });
+        const updateUser: [number, User[]] = await User.update({ nickname, mbti }, { where: { id: user.id } });
         if (updateUser[0]) {
-            res.status(200).json({ message: '성공적으로 변경이 완료되었습니다.' });
+            res.status(201).json({ message: '성공적으로 변경이 완료되었습니다.' });
         } else {
             res.status(404).json({ message: '해당하는 토큰값의 사용자가 존재하지 않습니다.' });
         }
