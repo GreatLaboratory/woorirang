@@ -5,6 +5,7 @@ import Post, { PostType } from '../models/Post';
 import Comment from '../models/Comment';
 import Image from '../models/Image';
 import Topic from '../models/Topic';
+import LikeComment from '../models/LikeComment';
 
 // POST -> 관리자가 토픽 게시하기
 export const createTopicByAdmin = async (req: Request, res: Response, next: NextFunction) => {
@@ -35,6 +36,8 @@ export const getCurrentTopic = async (req: Request, res: Response, next: NextFun
             include: [{
                 model: User,
                 attributes: ['nickname', 'mbti', 'id']
+            }, {
+                model: Image
             }],
             order: [['createdAt', 'DESC']],
             limit: 1
@@ -95,6 +98,7 @@ export const getTopicById = async (req: Request, res: Response, next: NextFuncti
 // GET -> 토픽의 댓글목록 조회하기 + mbti필터링
 export const getTopicCommentList = async (req: Request, res: Response, next: NextFunction) => {
     const { topicId } = req.params;
+    const user: User = req.user as User;
     const limit: number | undefined = req.query.limit ? parseInt(req.query.limit.toString(), 10) : 10;
     const page: number | undefined = req.query.page ? parseInt(req.query.page.toString(), 10) : 1;
     try {
@@ -110,10 +114,28 @@ export const getTopicCommentList = async (req: Request, res: Response, next: Nex
                 },
                 include: [{ 
                     model: Comment,
+                    order: [['createdAt', 'DESC']]
                 }],
                 order: [['createdAt', 'DESC']]
             });
-            res.status(200).json({ meesage: '성공적으로 댓글목록이 조회되었습니다.', count, data: rows });
+            const result = [];
+            for await (const comment of rows) {
+                const realComment: any = comment;
+                const like = await LikeComment.findOne({ where: { commentId: realComment.id, userId: user.id } });
+                if (realComment.Comments.length !== 0) {
+                    const temp = [];
+                    for await (const commentOfComment of realComment.Comments) {
+                        const like2 = await LikeComment.findOne({ where: { commentId: commentOfComment.id, userId: user.id } });
+                        temp.push({...commentOfComment.toJSON(), isLiked: !!like2});
+                    }
+                    result.push({...realComment.toJSON(), Comments: temp, isLiked: !!like});
+                    continue;
+                }
+                result.push({...realComment.toJSON(), isLiked: !!like});
+                
+            }
+
+            res.status(200).json({ meesage: '성공적으로 댓글목록이 조회되었습니다.', data: result });
         } else {
             const { count, rows } = await Comment.findAndCountAll({ 
                 limit, 
@@ -124,10 +146,29 @@ export const getTopicCommentList = async (req: Request, res: Response, next: Nex
                 },
                 include: [{ 
                     model: Comment,
+                    order: [['createdAt', 'DESC']]
                 }],
                 order: [['createdAt', 'DESC']]
             });
-            res.status(200).json({ meesage: '성공적으로 댓글목록이 조회되었습니다.', count, data: rows });
+
+            const result = [];
+            for await (const comment of rows) {
+                const realComment: any = comment;
+                const like = await LikeComment.findOne({ where: { commentId: realComment.id, userId: user.id } });
+                if (realComment.Comments.length !== 0) {
+                    const temp = [];
+                    for await (const commentOfComment of realComment.Comments) {
+                        const like2 = await LikeComment.findOne({ where: { commentId: commentOfComment.id, userId: user.id } });
+                        temp.push({...commentOfComment.toJSON(), isLiked: !!like2});
+                    }
+                    result.push({...realComment.toJSON(), Comments: temp, isLiked: !!like});
+                    continue;
+                }
+                result.push({...realComment.toJSON(), isLiked: !!like});
+                
+            }
+
+            res.status(200).json({ meesage: '성공적으로 댓글목록이 조회되었습니다.', data: result });
         }
     } catch (err) {
         console.log(err);
@@ -152,7 +193,7 @@ export const getTopicHistoryList = async (req: Request, res: Response, next: Nex
             }],
             order: [['createdAt', 'DESC']]
         });
-        rows.shift();
+        if (page === 1) rows.shift();
         if (req.query.sort) {
             rows.sort((a: Topic, b: Topic) => b.commentNum - a.commentNum );
             res.status(200).json({ meesage: '성공적으로 명예의 전당 게시물이 조회되었습니다.', count: count - 1, data: rows });
