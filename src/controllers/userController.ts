@@ -133,6 +133,7 @@ export const kakao  = async (req: Request, res: Response, next: NextFunction)=> 
 // POST -> 이메일 중복 확인
 export const checkOverlapEmail = async (req: Request, res: Response, next: NextFunction) => {
     const { email } = req.body;
+    if (!isValidEmail(email)) return res.status(409).json({ mesesage: '이메일 양식에 맞게 넣어주세요.' });
     try {
         const userByEmail: User | null = await User.findOne({ where: { email } });
         if (userByEmail) return res.status(400).json({ message: '이미 가입된 이메일 입니다.' });
@@ -177,8 +178,8 @@ export const signUp = async (req: Request, res: Response, next: NextFunction) =>
 // GET -> 현재 로그인된 사용자 정보 조회하기
 export const currentUser  = async (req: Request, res: Response, next: NextFunction)=> {
     const user: User = req.user as User;
-    const userId: number = user.id;
-    const { id, email, nickname, mbti, createdAt, updatedAt } = user;
+    // const userId: number = user.id;
+    // const { id, email, nickname, mbti, createdAt, updatedAt } = user;
     try {
         // 이런 식으로 해당 객체를 db에 저장시키는 save()함수가 잘 작동된다.
         // user.email = 'this is updated email!!';
@@ -190,9 +191,9 @@ export const currentUser  = async (req: Request, res: Response, next: NextFuncti
         // 이런 식으로 숫자형 타입의 필드를 더한 후 저장시킬 수 있음.
         // await user.increment('age', { by: 2 });
 
-        const postNum: number = await Post.count({ where: { userId } });
-        const commentNum: number = await Comment.count({ where: { userId } });
-        res.status(200).json({ id, email, nickname, mbti, createdAt, updatedAt, postNum, commentNum });
+        // const postNum: number = await Post.count({ where: { userId } });
+        // const commentNum: number = await Comment.count({ where: { userId } });
+        res.status(200).json(user);
     } catch (err) {
         console.log(err);
         next(err);
