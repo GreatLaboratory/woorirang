@@ -212,7 +212,9 @@ export const selectPost = async (req: Request, res: Response, next: NextFunction
                 where: { commentId: null }, 
                 include: [{ 
                     model: Comment,
-                }] 
+                    order: [['createdAt', 'DESC']]
+                }],
+                order: [['createdAt', 'DESC']]
             });
             const likePost: LikePost | null = await LikePost.findOne({ where: { postId, userId } });
             const isLiked: boolean = !!likePost;
