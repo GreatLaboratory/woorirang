@@ -104,7 +104,7 @@ export const getTopicCommentList = async (req: Request, res: Response, next: Nex
     try {
         if (req.query.mbti) {
             const mbti: string = req.query.mbti.toString();
-            const { count, rows } = await Comment.findAndCountAll({ 
+            const rows = await Comment.findAll({ 
                 limit, 
                 offset: limit * (page - 1 ),
                 where: {
@@ -121,7 +121,7 @@ export const getTopicCommentList = async (req: Request, res: Response, next: Nex
             const result = [];
             for await (const comment of rows) {
                 const realComment: any = comment;
-                const like = await LikeComment.findOne({ where: { commentId: realComment.id, userId: user.id } });
+                const like = await LikeComment.findOne({ where: { commentId: comment.id, userId: user.id } });
                 if (realComment.Comments.length !== 0) {
                     const temp = [];
                     for await (const commentOfComment of realComment.Comments) {
@@ -137,7 +137,7 @@ export const getTopicCommentList = async (req: Request, res: Response, next: Nex
 
             res.status(200).json({ meesage: '성공적으로 댓글목록이 조회되었습니다.', data: result });
         } else {
-            const { count, rows } = await Comment.findAndCountAll({ 
+            const rows = await Comment.findAll({ 
                 limit, 
                 offset: limit * (page - 1 ),
                 where: {
@@ -152,9 +152,9 @@ export const getTopicCommentList = async (req: Request, res: Response, next: Nex
             });
 
             const result = [];
-            for await (const comment of rows) {
+            for await (const comment of rows) { //  근데 이렇게 하면 똑같은 바깥에 있는 like 할당할 때의 쿼리문이 2번씩 됨. -> 낭비
                 const realComment: any = comment;
-                const like = await LikeComment.findOne({ where: { commentId: realComment.id, userId: user.id } });
+                const like = await LikeComment.findOne({ where: { commentId: comment.id, userId: user.id } });
                 if (realComment.Comments.length !== 0) {
                     const temp = [];
                     for await (const commentOfComment of realComment.Comments) {

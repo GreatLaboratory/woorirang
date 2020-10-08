@@ -28,7 +28,7 @@ class TopicRouter {
         this.router.get('/:topicId', getTopicById);
 
         // 토픽의 댓글목록 조회하기
-        this.router.get('/commentList/:topicId', getTopicCommentList);
+        this.router.get('/commentList/:topicId', verifyJwtToken, getTopicCommentList);
     }
 }
 
