@@ -41,3 +41,19 @@ export const testResultUploader = multer({
         },
     })
 });
+
+export const mbtiContentUploader = multer({
+    storage: multerS3({
+        s3,
+        bucket: 'woorirang-dev/mbtiContents',
+        acl: 'public-read',
+        contentType: AUTO_CONTENT_TYPE,
+        metadata: (req: Request, file: Express.Multer.File, cb) => {
+            cb(null, { fieldName: file.fieldname });
+        },
+        key: (req: Request, file: Express.Multer.File, cb) => {
+            const ext = path.extname(file.originalname);
+            cb(null, path.basename(file.originalname, ext) + '_woorirang_' + new Date().valueOf() + ext);
+        },
+    })
+});

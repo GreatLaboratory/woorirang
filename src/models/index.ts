@@ -9,6 +9,7 @@ import Image from './Image';
 import Notice from './Notice';
 import Test from './Test';
 import TestResult from './TestResult';
+import MbtiContent from './MbtiContent';
 import { MYSQL_URI, MYSQL_DATABASE, MYSQL_USERNAME, MYSQL_PASSWORD } from '../config/secret';
 import * as bcrypt from 'bcrypt-nodejs';
 
@@ -363,6 +364,27 @@ export const init = (): Sequelize => {
     }, {
         sequelize,
         timestamps: false,
+        engine: 'InnoDB',
+        charset: 'utf8',
+    });
+    
+    MbtiContent.init({
+        id: {
+            type: DataTypes.INTEGER.UNSIGNED,
+            autoIncrement: true,
+            primaryKey: true,
+            allowNull: false,
+        },
+        imageUrl: {
+            type: new DataTypes.STRING(300),
+            allowNull: false,
+        },
+        url: {
+            type: new DataTypes.STRING(300),
+            allowNull: false,
+        },
+    }, {
+        sequelize,
         engine: 'InnoDB',
         charset: 'utf8',
     });

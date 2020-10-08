@@ -15,6 +15,7 @@ import userRouter from './routers/userRouter';
 import postRouter from './routers/postRouter';
 import commentRouter from './routers/commentRouter';
 import topicRouter from './routers/topicRouter';
+import mainRouter from './routers/mainRouter';
 
 class Server {
     // Express App 필드 선언
@@ -74,6 +75,7 @@ class Server {
         this.app.use('/api/post', postRouter);
         this.app.use('/api/comment', commentRouter);
         this.app.use('/api/topic', topicRouter);
+        this.app.use('/api/main', mainRouter);
     }
 
     // 서버 구동
