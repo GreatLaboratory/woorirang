@@ -17,7 +17,11 @@ export const init = (): Sequelize => {
     const sequelize: Sequelize = new Sequelize(MYSQL_DATABASE, MYSQL_USERNAME, MYSQL_PASSWORD, {
         timezone: '+09:00',
         host: MYSQL_URI,
-        dialect: 'mysql'
+        dialect: 'mysql',
+        dialectOptions: {
+            dateStrings: true,
+            typeCast: true
+        },
     });
     User.init({
         id: {
