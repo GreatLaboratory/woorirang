@@ -114,9 +114,8 @@ export const getTopicCommentList = async (req: Request, res: Response, next: Nex
                 },
                 include: [{ 
                     model: Comment,
-                    order: [['createdAt', 'DESC']]
                 }],
-                order: [['createdAt', 'DESC']]
+                order: [['createdAt', 'DESC'], [Comment, 'createdAt', 'DESC']]
             });
             const result = [];
             for await (const comment of rows) {
@@ -128,6 +127,7 @@ export const getTopicCommentList = async (req: Request, res: Response, next: Nex
                         const like2 = await LikeComment.findOne({ where: { commentId: commentOfComment.id, userId: user.id } });
                         temp.push({...commentOfComment.toJSON(), isLiked: !!like2});
                     }
+                    // temp.sort((a, b) => b.createdAt - a.createdAt);
                     result.push({...realComment.toJSON(), Comments: temp, isLiked: !!like});
                     continue;
                 }
@@ -146,9 +146,8 @@ export const getTopicCommentList = async (req: Request, res: Response, next: Nex
                 },
                 include: [{ 
                     model: Comment,
-                    order: [['createdAt', 'DESC']]
                 }],
-                order: [['createdAt', 'DESC']]
+                order: [['createdAt', 'DESC'], [Comment, 'createdAt', 'DESC']]
             });
 
             const result = [];
@@ -161,6 +160,7 @@ export const getTopicCommentList = async (req: Request, res: Response, next: Nex
                         const like2 = await LikeComment.findOne({ where: { commentId: commentOfComment.id, userId: user.id } });
                         temp.push({...commentOfComment.toJSON(), isLiked: !!like2});
                     }
+                    // temp.sort((a, b) => b.createdAt - a.createdAt);
                     result.push({...realComment.toJSON(), Comments: temp, isLiked: !!like});
                     continue;
                 }
