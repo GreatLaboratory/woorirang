@@ -228,7 +228,7 @@ export const getTestResultList = async (req: Request, res: Response, next: NextF
                 model: Image
             }]
         });
-        res.status(200).json(result);
+        res.status(200).json({ result });
     } catch (err) {
         console.log(err);
         next(err);
