@@ -92,6 +92,9 @@ export const createCommentToTopic = async (req: Request, res: Response, next: Ne
             const commentUser: User | null = await User.findByPk(originalComment.userId);
             if (!commentUser) return res.status(404);
 
+            comment = await Comment.create({ userId, topicId: parseInt(topicId), commentId: parseInt(commentId.toString()), content, isAnonymous, userNickName: user.nickname, userMbti: user.mbti });
+            if (!isMyComment) await Notice.create({ userId: topic.userId, commenterId: userId, topicId, postId: null, message: `${isAnonymous ? '익명' : user.nickname}님이 내 댓글에 댓글을 남기셨어요!`, isAnonymous });
+
             const registrationTokenOfCommentUser: string = commentUser.fcmToken;
             const messageToCommentUser = {
                 data: {
@@ -99,9 +102,6 @@ export const createCommentToTopic = async (req: Request, res: Response, next: Ne
                     body: `${isAnonymous ? '익명' : user.nickname}님이 내 댓글에 댓글을 남기셨어요!`,
                 }
             };
-            comment = await Comment.create({ userId, topicId: parseInt(topicId), commentId: parseInt(commentId.toString()), content, isAnonymous, userNickName: user.nickname, userMbti: user.mbti });
-            if (!isMyComment) await Notice.create({ userId: topic.userId, commenterId: userId, topicId, postId: null, message: `${isAnonymous ? '익명' : user.nickname}님이 내 댓글에 댓글을 남기셨어요!`, isAnonymous });
-            
             await admin.messaging().sendToDevice(registrationTokenOfCommentUser, messageToCommentUser, notificationOption);
         } else {
             comment = await Comment.create({ userId, topicId: parseInt(topicId), content, isAnonymous, userNickName: user.nickname, userMbti: user.mbti });
@@ -110,15 +110,6 @@ export const createCommentToTopic = async (req: Request, res: Response, next: Ne
 
         topic.commentNum++;
         await topic.save();
-
-        const registrationTokenOfTopicUser: string = topicUser.fcmToken;
-        const messageToTopicUser = {
-            data: {
-                title: '우리랑 댓글 알림',
-                body: `${isAnonymous ? '익명' : user.nickname}님이 내 글에 댓글을 남기셨어요!`,
-            }
-        };
-        await admin.messaging().sendToDevice(registrationTokenOfTopicUser, messageToTopicUser, notificationOption);
 
         res.status(201).json({ messag: '성공적으로 댓글이 달렸습니다.', data: comment });
     } catch (err) {
