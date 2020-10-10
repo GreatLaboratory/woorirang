@@ -200,3 +200,17 @@ export const dislikeComment = async (req: Request, res: Response, next: NextFunc
     }
 };
 
+// GET -> 자신이 쓴 댓글인지 여부 조회
+export const isMyComment = async (req: Request, res: Response, next: NextFunction) => {
+    const user: User = req.user as User;
+    const { commentId } = req.params;
+    try {
+        const comment: Comment | null = await Comment.findByPk(commentId);
+        if (!comment) return res.status(404).json({ message: '해당하는 commentId의 댓글이 존재하지 않습니다.' });
+
+        res.status(200).json({ isMyComment: user.id === comment.userId });
+    } catch (err) {
+        console.log(err);
+        next(err);
+    }
+};

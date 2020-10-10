@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { createCommentToPost, createCommentToTopic, deleteComment, likeComment, dislikeComment } from '../controllers/commentController';
+import { createCommentToPost, createCommentToTopic, deleteComment, likeComment, dislikeComment, isMyComment } from '../controllers/commentController';
 import { verifyJwtToken } from './middleWares/authValidation';
 
 class CommentRouter {
@@ -25,6 +25,9 @@ class CommentRouter {
         
         // 댓글 공감취소하기
         this.router.post('/dislike/:commentId', verifyJwtToken, dislikeComment);
+        
+        // 자신이 쓴 댓글인지 여부 조회
+        this.router.get('/isMyComment/:commentId', verifyJwtToken, isMyComment);
     }
 }
 
