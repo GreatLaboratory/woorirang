@@ -21,7 +21,7 @@ class MainRouter {
         this.router.get('/', getPostTypeTopic);
         
         // 메인화면에서mbti 관련 컨텐츠 리스트 조회
-        this.router.get('/mbtiContentsList', getMbtiContentList);
+        this.router.get('/mbtiContentList', getMbtiContentList);
         
         // 메인화면에서mbti 관련 컨텐츠 등록
         this.router.post('/mbtiContent', mbtiContentUploader.single('image'), createMbtiContent);
