@@ -306,6 +306,11 @@ export const selectUserCommentPost  = async (req: Request, res: Response, next: 
     const limit: number | undefined = req.query.limit ? parseInt(req.query.limit.toString(), 10) : 10;
     const page: number | undefined = req.query.page ? parseInt(req.query.page.toString(), 10) : 1;
     try {
+        const currentTopic: Topic | null = await Topic.findOne({
+            order: [['createdAt', 'DESC']],
+            limit: 1
+        });
+        if (!currentTopic) return res.status(404).json({ message: '등록된 토픽이 존재하지 않습니다.' });
         const commentList: Comment[] = await user.getComments({ 
             include: [{
                 model: Post,
@@ -329,7 +334,13 @@ export const selectUserCommentPost  = async (req: Request, res: Response, next: 
             .filter((value, index, array) => 
                 array.findIndex((element) => element.topicId === value.topicId) === index);
                 
-        const result = [...temp1, ...temp2].map((comment: any) => (comment.Post ? { ...comment.Post.toJSON(), category: 'post' } : { ...comment.Topic.toJSON(), category: 'topic' }));
+        const result = [...temp1, ...temp2].map((comment: any) => {
+            return comment.Post
+                ? { ...comment.Post.toJSON(), category: 'post' } 
+                :             comment.Topic.id === currentTopic.id 
+                    ? { ...comment.Topic.toJSON(), category: 'topic' } 
+                    :                 { ...comment.Topic.toJSON(), category: 'prevTopic' };
+        });
         result.sort((a, b) => b.createdAt - a.createdAt);
         const finalResult = result.slice((page - 1) * limit, page * limit);
         res.status(200).json({ message: '성공적으로 조회되었습니다.', data: finalResult });
