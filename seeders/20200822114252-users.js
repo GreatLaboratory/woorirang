@@ -27,7 +27,7 @@ module.exports = {
                 email: 'cartopia97@naver.com',
                 password,
                 nickname: 'nia',
-                mbti: 'inpj',
+                mbti: 'intj',
                 fcmToken: '',
                 createdAt: new Date(),
                 updatedAt: new Date(),
