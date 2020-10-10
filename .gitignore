@@ -49,4 +49,4 @@ src/testServer.ts
 .eslintignore
 /config
 /migrations
-/seeders
+/test
