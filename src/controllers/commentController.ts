@@ -43,7 +43,8 @@ export const createCommentToPost = async (req: Request, res: Response, next: Nex
             comment = await Comment.create({ userId, postId: parseInt(postId), commentId: parseInt(commentId.toString()), content, isAnonymous, userNickName: user.nickname, userMbti: user.mbti });
             if (!isMyComment) await Notice.create({ userId: post.userId, commenterId: userId, topicId: null, postId, message: `${isAnonymous ? '익명' : user.nickname}님이 내 댓글에 댓글을 남기셨어요!`, isAnonymous });
             
-            await admin.messaging().sendToDevice(registrationTokenOfCommentUser, messageToCommentUser, notificationOption);
+            const isMyCommentOfComment: boolean = userId === commentUser.id;
+            if (!isMyCommentOfComment) await admin.messaging().sendToDevice(registrationTokenOfCommentUser, messageToCommentUser, notificationOption);
         } else {
             comment = await Comment.create({ userId, postId: parseInt(postId), content, isAnonymous, userNickName: user.nickname, userMbti: user.mbti });
             if (!isMyComment) await Notice.create({ userId: post.userId, commenterId: userId, topicId: null, postId, message: `${isAnonymous ? '익명' : user.nickname}님이 내 글에 댓글을 남기셨어요!`, isAnonymous });
@@ -102,7 +103,8 @@ export const createCommentToTopic = async (req: Request, res: Response, next: Ne
                     body: `${isAnonymous ? '익명' : user.nickname}님이 내 댓글에 댓글을 남기셨어요!`,
                 }
             };
-            await admin.messaging().sendToDevice(registrationTokenOfCommentUser, messageToCommentUser, notificationOption);
+            const isMyCommentOfComment: boolean = userId === commentUser.id;
+            if (!isMyCommentOfComment) await admin.messaging().sendToDevice(registrationTokenOfCommentUser, messageToCommentUser, notificationOption);
         } else {
             comment = await Comment.create({ userId, topicId: parseInt(topicId), content, isAnonymous, userNickName: user.nickname, userMbti: user.mbti });
             if (!isMyComment) await Notice.create({ userId: topic.userId, commenterId: userId, topicId, postId: null, message: `${isAnonymous ? '익명' : user.nickname}님이 내 글에 댓글을 남기셨어요!`, isAnonymous });
