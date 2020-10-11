@@ -3,6 +3,7 @@ import { Request, Response, NextFunction } from 'express';
 import MbtiContent from '../models/MbtiContent';
 import Image from '../models/Image';
 import Topic from '../models/Topic';
+import Post, { PostType } from '../models/Post';
 
 
 // GET -> 메인화면에서 현재 너희랑 정보 조회
@@ -47,10 +48,22 @@ export const getTopicHistoryImages = async (req: Request, res: Response, next: N
 };
 
 
-// GET -> TODO: 메인화면에서 이건어때
+// GET -> 메인화면에서 이건어때 썸네일 4개 조회
 export const getPostTypeTopic = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        res.status(200).json();
+        const result = await Post.findAll({ 
+            attributes: ['id', 'likes'],
+            limit: 4, 
+            where: {
+                type: PostType.Topic,
+            },
+            include: [{
+                model: Image,
+                attributes: ['url']
+            }],
+            order: [['likes', 'DESC']]
+        });
+        res.status(200).json(result);
     } catch (err) {
         console.log(err);
         next(err);

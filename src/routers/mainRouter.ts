@@ -18,7 +18,7 @@ class MainRouter {
         this.router.get('/topicHistoryImages', getTopicHistoryImages);
         
         // TODO: 메인화면에서 이건어때
-        this.router.get('/', getPostTypeTopic);
+        this.router.get('/topicCandidateImages', getPostTypeTopic);
         
         // 메인화면에서mbti 관련 컨텐츠 리스트 조회
         this.router.get('/mbtiContentList', getMbtiContentList);
