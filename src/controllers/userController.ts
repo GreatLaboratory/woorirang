@@ -207,6 +207,12 @@ export const updateUser  = async (req: Request, res: Response, next: NextFunctio
     try {
         const updateUser: [number, User[]] = await User.update({ nickname, mbti }, { where: { id: user.id } });
         if (updateUser[0]) {
+            const commentList: Comment[] = await Comment.findAll({ where: { userId: user.id }});
+            commentList.forEach(async (comment: Comment) => {
+                comment.userNickName = nickname;
+                comment.userMbti = mbti;
+                await comment.save();
+            });
             res.status(201).json({ message: '성공적으로 변경이 완료되었습니다.' });
         } else {
             res.status(404).json({ message: '해당하는 토큰값의 사용자가 존재하지 않습니다.' });
