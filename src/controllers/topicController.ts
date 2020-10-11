@@ -6,6 +6,7 @@ import Comment from '../models/Comment';
 import Image from '../models/Image';
 import Topic from '../models/Topic';
 import LikeComment from '../models/LikeComment';
+import LikePost from '../models/LikePost';
 
 // POST -> 관리자가 토픽 게시하기
 export const createTopicByAdmin = async (req: Request, res: Response, next: NextFunction) => {
@@ -208,6 +209,7 @@ export const getTopicHistoryList = async (req: Request, res: Response, next: Nex
 
 // GET -> 이건어때에서 전체 게시물 조회하기 + mbti필터링
 export const getTopicCandidateList = async (req: Request, res: Response, next: NextFunction) => {
+    const user: User = req.user as User;
     const limit: number | undefined = req.query.limit ? parseInt(req.query.limit.toString(), 10) : 10;
     const page: number | undefined = req.query.page ? parseInt(req.query.page.toString(), 10) : 1;
     try {
@@ -229,7 +231,12 @@ export const getTopicCandidateList = async (req: Request, res: Response, next: N
                 }],
                 order: [['createdAt', 'DESC']]
             });
-            res.status(200).json({ meesage: '성공적으로 이건어때 게시물이 조회되었습니다.', count, data: rows });
+            const result = [];
+            for await (const post of rows) {
+                const like: LikePost | null = await LikePost.findOne({ where: { userId: user.id, postId: post.id } });
+                result.push({...post.toJSON(), isLiked: !!like});
+            }
+            res.status(200).json({ meesage: '성공적으로 이건어때 게시물이 조회되었습니다.', count, data: result });
         } else {
             if (req.query.sort) {
                 const { count, rows } = await Post.findAndCountAll({ 
@@ -247,7 +254,12 @@ export const getTopicCandidateList = async (req: Request, res: Response, next: N
                     }],
                     order: [['likes', 'DESC']]
                 });
-                res.status(200).json({ meesage: '성공적으로 이건어때 게시물이 조회되었습니다.', count, data: rows });
+                const result = [];
+                for await (const post of rows) {
+                    const like: LikePost | null = await LikePost.findOne({ where: { userId: user.id, postId: post.id } });
+                    result.push({...post.toJSON(), isLiked: !!like});
+                }
+                res.status(200).json({ meesage: '성공적으로 이건어때 게시물이 조회되었습니다.', count, data: result });
             } else {
                 const { count, rows } = await Post.findAndCountAll({ 
                     limit, 
@@ -264,7 +276,12 @@ export const getTopicCandidateList = async (req: Request, res: Response, next: N
                     }],
                     order: [['createdAt', 'DESC']]
                 });
-                res.status(200).json({ meesage: '성공적으로 이건어때 게시물이 조회되었습니다.', count, data: rows });
+                const result = [];
+                for await (const post of rows) {
+                    const like: LikePost | null = await LikePost.findOne({ where: { userId: user.id, postId: post.id } });
+                    result.push({...post.toJSON(), isLiked: !!like});
+                }
+                res.status(200).json({ meesage: '성공적으로 이건어때 게시물이 조회되었습니다.', count, data: result });
             }
         }
     } catch (err) {
