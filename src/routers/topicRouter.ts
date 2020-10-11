@@ -22,7 +22,7 @@ class TopicRouter {
         this.router.get('/history', getTopicHistoryList);
         
         // 이건어때에서 전체 게시물 조회하기
-        this.router.get('/list', getTopicCandidateList);
+        this.router.get('/list', verifyJwtToken, getTopicCandidateList);
 
         // 특정 토픽 조회하기
         this.router.get('/:topicId', getTopicById);
