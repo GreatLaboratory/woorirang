@@ -147,9 +147,9 @@ export const checkOverlapEmail = async (req: Request, res: Response, next: NextF
 // POST -> 회원가입
 export const signUp = async (req: Request, res: Response, next: NextFunction) => {
     const { email, password, mbti, nickname } = req.body;
-    const error = checkEmailPw(email, password);
-    if (error) return res.status(400).json(error);
-    if (!mbti || !isValidMbti(mbti)) return res.status(409).json({ message: '유효한 mbti타입이 아닙니다.' });
+    // const error = checkEmailPw(email, password);
+    // if (error) return res.status(400).json(error);
+    // if (!mbti || !isValidMbti(mbti)) return res.status(409).json({ message: '유효한 mbti타입이 아닙니다.' });
     try {
         const userByEmail: User | null = await User.findOne({ where: { email } });
         const userByNickname: User | null = await User.findOne({ where: { nickname } });
