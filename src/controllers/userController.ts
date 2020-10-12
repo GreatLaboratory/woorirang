@@ -147,9 +147,9 @@ export const checkOverlapEmail = async (req: Request, res: Response, next: NextF
 // POST -> 회원가입
 export const signUp = async (req: Request, res: Response, next: NextFunction) => {
     const { email, password, mbti, nickname } = req.body;
-    // const error = checkEmailPw(email, password);
-    // if (error) return res.status(400).json(error);
-    // if (!mbti || !isValidMbti(mbti)) return res.status(409).json({ message: '유효한 mbti타입이 아닙니다.' });
+    const error = checkEmailPw(email, password);
+    if (error) return res.status(400).json(error);
+    if (!mbti || !isValidMbti(mbti)) return res.status(409).json({ message: '유효한 mbti타입이 아닙니다.' });
     try {
         const userByEmail: User | null = await User.findOne({ where: { email } });
         const userByNickname: User | null = await User.findOne({ where: { nickname } });
@@ -158,8 +158,8 @@ export const signUp = async (req: Request, res: Response, next: NextFunction) =>
         const createdUser: User = await User.create({ email, password, mbti, nickname });
         
         // sequelize로 만들어진 객체는 꼭 .toJSON()을 붙혀서 콘솔찍어야 잘 찍힌다.
-        console.log(createdUser.toJSON());
-        console.log(createdUser.email);
+        // console.log(createdUser.toJSON());
+        // console.log(createdUser.email);
         return res.json({
             message: '가입에 성공하였습니다.',
             data: {
