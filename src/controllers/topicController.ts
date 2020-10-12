@@ -73,6 +73,9 @@ export const getTopicById = async (req: Request, res: Response, next: NextFuncti
             include: [{
                 model: User,
                 attributes: ['nickname', 'mbti', 'id']
+            }, {
+                model: Image,
+                attributes: ['url']
             }]
         });
         if (!topic) res.status(404).json({ message: '해당하는 아이디의 토픽이 존재하지 않습니다.' });
