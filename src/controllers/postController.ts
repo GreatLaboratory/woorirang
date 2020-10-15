@@ -198,27 +198,22 @@ export const selectPost = async (req: Request, res: Response, next: NextFunction
     const { postId } = req.params;
     try {
         const post: Post | null = await Post.findByPk(postId, {
-            include: {
+            include: [{
                 model: Image,
                 attributes: ['id', 'url']
-            }
+            }, {
+                model: User,
+                attributes: ['id', 'nickname', 'mbti']
+            }]
         });
         if (post) {
             if (post.userId !== userId) {
                 post.views++;
                 await post.save();
             }
-            const commentList: Comment[] = await post.getComments({ 
-                where: { commentId: null }, 
-                include: [{ 
-                    model: Comment,
-                    order: [['createdAt', 'DESC']]
-                }],
-                order: [['createdAt', 'DESC']]
-            });
             const likePost: LikePost | null = await LikePost.findOne({ where: { postId, userId } });
             const isLiked: boolean = !!likePost;
-            res.status(200).json({ meesage: '성공적으로 게시물이 조회되었습니다.', data: { isLiked, post, commentList } }); 
+            res.status(200).json({ meesage: '성공적으로 게시물이 조회되었습니다.', data: { isLiked, post } }); 
         } else {
             res.status(404).json({ message: '해당하는 postId의 게시물이 존재하지 않습니다.' });
         }
@@ -227,6 +222,7 @@ export const selectPost = async (req: Request, res: Response, next: NextFunction
         next(err);
     }
 };
+
 
 // GET -> 특정 게시물의 댓글목록 조회하기
 export const getPostCommentList = async (req: Request, res: Response, next: NextFunction) => {
