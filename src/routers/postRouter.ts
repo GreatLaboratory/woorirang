@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { createPost, updatePost, deletePost, selectPostList, selectPost, likePost, dislikePost, selectTopThreePostList } from '../controllers/postController';
+import { createPost, updatePost, deletePost, selectPostList, selectPost, likePost, dislikePost, selectTopThreePostList, getPostCommentList } from '../controllers/postController';
 import { verifyJwtToken } from './middleWares/authValidation';
 import { postUploader } from './middleWares/uploader';
 
@@ -29,6 +29,9 @@ class UserRouter {
         
         // 특정 게시물 조회하기
         this.router.get('/:postId', verifyJwtToken, selectPost);
+        
+        // 특정 게시물 조회하기
+        this.router.get('/commentList/:postId', getPostCommentList);
         
         // 게시물 공감하기
         this.router.post('/like/:postId', verifyJwtToken, likePost);

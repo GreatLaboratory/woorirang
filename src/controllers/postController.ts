@@ -228,6 +228,28 @@ export const selectPost = async (req: Request, res: Response, next: NextFunction
     }
 };
 
+// GET -> 특정 게시물의 댓글목록 조회하기
+export const getPostCommentList = async (req: Request, res: Response, next: NextFunction) => {
+    const limit: number | undefined = req.query.limit ? parseInt(req.query.limit.toString(), 10) : 10;
+    const page: number | undefined = req.query.page ? parseInt(req.query.page.toString(), 10) : 1;
+    const { postId } = req.params;
+    try {
+        const post: Post | null = await Post.findByPk(postId);
+        if (!post) return res.status(404).json({ message: '해당하는 postId의 게시물이 존재하지 않습니다.' });
+
+        const commentList: Comment[] = await post.getComments({
+            limit, 
+            offset: limit * (page - 1 ),
+            order: [['createdAt', 'DESC']],
+        });
+
+        res.status(200).json({ meesage: '성공적으로 게시물의 댓글목록이 조회되었습니다.', data: commentList }); 
+    } catch (err) {
+        console.log(err);
+        next(err);
+    }
+};
+
 // POST -> 게시물 좋아요
 export const likePost = async (req: Request, res: Response, next: NextFunction) => {
     const user: User = req.user as User;
