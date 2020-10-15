@@ -21,13 +21,20 @@ export const createPost = async (req: Request, res: Response, next: NextFunction
             type,
             isAnonymous,
         });
+        const thisPost: Post | null = await Post.findByPk(newPost.id, { 
+            include: [{ 
+                model: User, 
+                attributes: ['mbti', 'nickname']
+            }]
+        });
         files.forEach(async (file: any) => await Image.create({ postId: newPost.id, url: file.location }));
-        res.status(201).json({ meesage: '성공적으로 게시물이 등록되었습니다.', data: newPost });
+        res.status(201).json({ meesage: '성공적으로 게시물이 등록되었습니다.', data: thisPost });
     } catch (err) {
         console.log(err);
         next(err);
     }
 };
+
 
 // PUT -> 게시물 수정하기
 export const updatePost = async (req: Request, res: Response, next: NextFunction) => {
