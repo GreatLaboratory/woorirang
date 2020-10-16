@@ -241,6 +241,12 @@ export const getPostCommentList = async (req: Request, res: Response, next: Next
         if (!post) return res.status(404).json({ message: '해당하는 postId의 게시물이 존재하지 않습니다.' });
 
         const commentList: Comment[] = await post.getComments({
+            where: { 
+                commentId: null 
+            },
+            include: [{
+                model: Comment,
+            }],
             limit, 
             offset: limit * (page - 1 ),
             order: [['createdAt', 'DESC']],
