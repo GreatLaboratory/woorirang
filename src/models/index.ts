@@ -12,6 +12,9 @@ import TestResult from './TestResult';
 import MbtiContent from './MbtiContent';
 import { MYSQL_URI, MYSQL_DATABASE, MYSQL_USERNAME, MYSQL_PASSWORD } from '../config/secret';
 import * as bcrypt from 'bcrypt-nodejs';
+import WorldCup from './WorldCup';
+import WorldCupCandidate from './WorldCupCandidate';
+import WorldCupResult from './WorldCupResult';
 
 export const init = (): Sequelize => {
     const sequelize: Sequelize = new Sequelize(MYSQL_DATABASE, MYSQL_USERNAME, MYSQL_PASSWORD, {
@@ -391,6 +394,122 @@ export const init = (): Sequelize => {
         sequelize,
         engine: 'InnoDB',
         charset: 'utf8',
+    });
+    
+    WorldCup.init({
+        id: {
+            type: DataTypes.INTEGER.UNSIGNED,
+            autoIncrement: true,
+            primaryKey: true,
+            allowNull: false,
+        },
+        userId: {
+            type: DataTypes.INTEGER.UNSIGNED,
+            allowNull: false,
+        },
+        roundNum: {
+            type: new DataTypes.STRING(10),
+            allowNull: false,
+        },
+        title: {
+            type: new DataTypes.STRING(50),
+            allowNull: false,
+        },
+        description: {
+            type: new DataTypes.STRING(100),
+            allowNull: false,
+        },
+        joinNum: {
+            type: DataTypes.INTEGER,
+            allowNull: false,
+            defaultValue: 0,
+        },
+    }, {
+        sequelize,
+        engine: 'InnoDB',
+        charset: 'utf8',
+    });
+    
+    WorldCupCandidate.init({
+        id: {
+            type: DataTypes.INTEGER.UNSIGNED,
+            autoIncrement: true,
+            primaryKey: true,
+            allowNull: false,
+        },
+        worldCupId: {
+            type: DataTypes.INTEGER.UNSIGNED,
+            allowNull: false,
+        },
+        title: {
+            type: new DataTypes.STRING(50),
+            allowNull: false,
+        },
+        imageUrl: {
+            type: new DataTypes.STRING(500),
+            allowNull: false,
+        },
+    }, {
+        sequelize,
+        engine: 'InnoDB',
+        charset: 'utf8',
+    });
+    
+    WorldCupResult.init({
+        id: {
+            type: DataTypes.INTEGER.UNSIGNED,
+            autoIncrement: true,
+            primaryKey: true,
+            allowNull: false,
+        },
+        userId: {
+            type: DataTypes.INTEGER.UNSIGNED,
+            allowNull: false,
+        },
+        worldCupId: {
+            type: DataTypes.INTEGER.UNSIGNED,
+            allowNull: false,
+        },
+        worldCupCandidateId: {
+            type: DataTypes.INTEGER.UNSIGNED,
+            allowNull: false,
+        },
+    }, {
+        sequelize,
+        engine: 'InnoDB',
+        charset: 'utf8',
+    });
+
+    // WorldCup : User = 1 : 1
+    User.hasOne(WorldCup, {
+        foreignKey: 'userId',
+    });
+    WorldCup.belongsTo(User, {
+        foreignKey: 'userId',
+    });
+
+    // WorldCup : WorldCupCandidate = 1 : N
+    WorldCup.hasMany(WorldCupCandidate, {
+        foreignKey: 'worldCupId',
+    });
+    WorldCupCandidate.belongsTo(WorldCup, {
+        foreignKey: 'worldCupId',
+    });
+
+    // WorldCupCandidate : WorldCupResult = 1 : N
+    WorldCupCandidate.hasMany(WorldCupResult, {
+        foreignKey: 'worldCupCandidateId',
+    });
+    WorldCupResult.belongsTo(WorldCupCandidate, {
+        foreignKey: 'worldCupCandidateId',
+    });
+
+    // WorldCupResult : User = 1 : 1
+    User.hasOne(WorldCupResult, {
+        foreignKey: 'userId',
+    });
+    WorldCupResult.belongsTo(User, {
+        foreignKey: 'userId',
     });
     
     // User : TestResult = 1 : N

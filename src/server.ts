@@ -16,6 +16,7 @@ import postRouter from './routers/postRouter';
 import commentRouter from './routers/commentRouter';
 import topicRouter from './routers/topicRouter';
 import mainRouter from './routers/mainRouter';
+import worldCupRouter from './routers/worldCupRouter';
 
 class Server {
     // Express App 필드 선언
@@ -76,6 +77,7 @@ class Server {
         this.app.use('/api/comment', commentRouter);
         this.app.use('/api/topic', topicRouter);
         this.app.use('/api/main', mainRouter);
+        this.app.use('/api/worldCup', worldCupRouter);
     }
 
     // 서버 구동
