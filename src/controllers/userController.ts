@@ -102,6 +102,7 @@ export const kakaoValidate  = async (req: Request, res: Response, next: NextFunc
 export const kakao  = async (req: Request, res: Response, next: NextFunction)=> {
     const { accessToken, nickname, mbti } = req.body;
     if (mbti && !isValidMbti(mbti)) return res.status(409).json({ message: '유효한 mbti타입이 아닙니다.' });
+    if (nickname.length > 6) return res.status(409).json({ message: '닉네임은 최대 6글자이어야합니다.' });
     const header: AxiosRequestConfig = { headers: {
         'Authorization': `Bearer ${accessToken}`,
         'Content-type': 'application/x-www-form-urlencoded;charset=utf-8'
@@ -150,6 +151,7 @@ export const signUp = async (req: Request, res: Response, next: NextFunction) =>
     const error = checkEmailPw(email, password);
     if (error) return res.status(400).json(error);
     if (!mbti || !isValidMbti(mbti)) return res.status(409).json({ message: '유효한 mbti타입이 아닙니다.' });
+    if (nickname.length > 6) return res.status(409).json({ message: '닉네임은 최대 6글자이어야합니다.' });
     try {
         const userByEmail: User | null = await User.findOne({ where: { email } });
         const userByNickname: User | null = await User.findOne({ where: { nickname } });
