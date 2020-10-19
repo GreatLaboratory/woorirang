@@ -410,6 +410,7 @@ export const getNoticeList  = async (req: Request, res: Response, next: NextFunc
             }],
             limit, 
             offset: limit * (page - 1 ),
+            order: [['createdAt', 'DESC']],
         });
 
         res.status(200).json({ meesage: '성공적으로 알림목록이 조회되었습니다.', count, data: rows });
