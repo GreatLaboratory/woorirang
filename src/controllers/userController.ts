@@ -276,7 +276,7 @@ export const updateTestResult = async (req: Request, res: Response, next: NextFu
         testResult.resultText = resultText;
         await testResult.save();
 
-        removeImageIdList.forEach(async (imageId: string) => await Image.destroy({ where: { id: parseInt(imageId), testResultId: testResult.id } }));
+        if (removeImageIdList) removeImageIdList.forEach(async (imageId: string) => await Image.destroy({ where: { id: parseInt(imageId), testResultId: testResult.id } }));
         files.forEach(async (file: any) => await Image.create({ testResultId: testResult.id, url: file.location }));
 
         res.status(201).json({ meesage: '성공적으로 검사 유형 결과가 수정되었습니다.' });
