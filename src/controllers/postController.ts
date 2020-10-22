@@ -6,6 +6,7 @@ import Post, { PostType } from '../models/Post';
 import LikePost from '../models/LikePost';
 import Comment from '../models/Comment';
 import Image from '../models/Image';
+import LikeComment from '../models/LikeComment';
 
 // POST -> 게시물 생성하기
 export const createPost = async (req: Request, res: Response, next: NextFunction) => {
@@ -69,7 +70,22 @@ export const deletePost = async (req: Request, res: Response, next: NextFunction
         if (!post) return res.status(404).json({ message: '해당하는 postId의 게시물이 존재하지 않습니다.' });
         if (post.userId !== userId) return res.status(409).json({ message: '삭제권한이 없습니다.' });
         await Post.destroy({ where: { id: postId } });
-        await Image.destroy({ where: { postId }  });
+        await Image.destroy({ where: { postId } });
+
+        const commentList: Comment[] = await post.getComments();
+        commentList.forEach(async (comment: Comment) => {
+            const likeCommentList: LikeComment[] = await LikeComment.findAll({ where: { commentId: comment.id }});
+            likeCommentList.forEach(async (likeComment: LikeComment) => {
+                await likeComment.destroy();
+            });
+            await comment.destroy();
+        });
+
+        const likePostList: LikePost[] = await LikePost.findAll({ where: { postId: post.id }});
+        likePostList.forEach(async (likePost: LikePost) => {
+            await likePost.destroy();
+        });
+
         res.status(201).json({ meesage: '성공적으로 게시물이 삭제되었습니다.', data: post });
     } catch (err) {
         console.log(err);
