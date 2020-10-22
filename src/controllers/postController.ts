@@ -218,9 +218,10 @@ export const selectPost = async (req: Request, res: Response, next: NextFunction
                 post.views++;
                 await post.save();
             }
+            const commentNum: number = (await post.getComments()).length;
             const likePost: LikePost | null = await LikePost.findOne({ where: { postId, userId } });
             const isLiked: boolean = !!likePost;
-            res.status(200).json({ meesage: '성공적으로 게시물이 조회되었습니다.', data: { isLiked, post } }); 
+            res.status(200).json({ meesage: '성공적으로 게시물이 조회되었습니다.', data: { isLiked, post: { ...post.toJSON(), commentNum } } }); 
         } else {
             res.status(404).json({ message: '해당하는 postId의 게시물이 존재하지 않습니다.' });
         }
