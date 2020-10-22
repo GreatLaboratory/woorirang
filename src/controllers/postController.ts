@@ -247,6 +247,8 @@ export const getPostCommentList = async (req: Request, res: Response, next: Next
             },
             include: [{
                 model: Comment,
+                separate: true,
+                order: [['createdAt', 'DESC']],
             }],
             limit, 
             offset: limit * (page - 1 ),
