@@ -7,6 +7,7 @@ import Image from '../models/Image';
 import Topic from '../models/Topic';
 import LikeComment from '../models/LikeComment';
 import LikePost from '../models/LikePost';
+import sequelize from 'sequelize';
 
 // POST -> 관리자가 토픽 게시하기
 export const createTopicByAdmin = async (req: Request, res: Response, next: NextFunction) => {
@@ -188,6 +189,14 @@ export const getTopicHistoryList = async (req: Request, res: Response, next: Nex
     const page: number | undefined = req.query.page ? parseInt(req.query.page.toString(), 10) : 1;
     try {
         const { count, rows } = await Topic.findAndCountAll({ 
+            attributes: {
+                include: [[sequelize.literal(`(
+                    SELECT COUNT(*)
+                        FROM Comments AS comment
+                        WHERE
+                            comment.topicId = Topic.id
+                )`), 'commentNum2']]
+            },
             limit, 
             offset: limit * (page - 1 ),
             include: [{ 

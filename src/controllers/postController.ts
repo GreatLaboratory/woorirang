@@ -7,6 +7,7 @@ import LikePost from '../models/LikePost';
 import Comment from '../models/Comment';
 import Image from '../models/Image';
 import LikeComment from '../models/LikeComment';
+import sequelize from 'sequelize';
 
 // POST -> 게시물 생성하기
 export const createPost = async (req: Request, res: Response, next: NextFunction) => {
@@ -103,6 +104,14 @@ export const selectPostList = async (req: Request, res: Response, next: NextFunc
             const keyword: string = req.query.keyword.toString();
             const mbti: string = req.query.mbti.toString();
             const { count, rows } = await Post.findAndCountAll({ 
+                attributes: {
+                    include: [[sequelize.literal(`(
+                        SELECT COUNT(*)
+                            FROM Comments AS comment
+                            WHERE
+                                comment.postId = Post.id
+                    )`), 'commentNum2']]
+                },
                 limit, 
                 offset: limit * (page - 1 ),
                 where: {
@@ -128,6 +137,14 @@ export const selectPostList = async (req: Request, res: Response, next: NextFunc
         } else if (req.query.mbti && !req.query.keyword) { 
             const mbti: string = req.query.mbti.toString();
             const { count, rows } = await Post.findAndCountAll({ 
+                attributes: {
+                    include: [[sequelize.literal(`(
+                        SELECT COUNT(*)
+                            FROM Comments AS comment
+                            WHERE
+                                comment.postId = Post.id
+                    )`), 'commentNum2']]
+                },
                 limit, 
                 offset: limit * (page - 1 ), 
                 include: [{ 
@@ -147,6 +164,14 @@ export const selectPostList = async (req: Request, res: Response, next: NextFunc
         } else if (!req.query.mbti && req.query.keyword) { 
             const keyword: string = req.query.keyword.toString();
             const { count, rows } = await Post.findAndCountAll({ 
+                attributes: {
+                    include: [[sequelize.literal(`(
+                        SELECT COUNT(*)
+                            FROM Comments AS comment
+                            WHERE
+                                comment.postId = Post.id
+                    )`), 'commentNum2']]
+                },
                 limit, 
                 offset: limit * (page - 1 ), 
                 include: [{ 
@@ -170,6 +195,14 @@ export const selectPostList = async (req: Request, res: Response, next: NextFunc
         // req.query에 limit, page만 있을 경우
         } else { 
             const { count, rows } = await Post.findAndCountAll({ 
+                attributes: {
+                    include: [[sequelize.literal(`(
+                        SELECT COUNT(*)
+                            FROM Comments AS comment
+                            WHERE
+                                comment.postId = Post.id
+                    )`), 'commentNum2']]
+                },
                 limit, 
                 offset: limit * (page - 1 ),
                 include: [{ 
