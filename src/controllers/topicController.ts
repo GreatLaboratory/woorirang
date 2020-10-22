@@ -56,7 +56,8 @@ export const getCurrentTopic = async (req: Request, res: Response, next: NextFun
                 limit,
                 order: [['likes', 'DESC']]
             });
-            res.status(200).json({ message: '성공적으로 토픽이 조회되었습니다.', data: { topic, commentList } });
+            const commentNum: number = (await Comment.findAll({ where: { topicId: topic.id } })).length;
+            res.status(200).json({ message: '성공적으로 토픽이 조회되었습니다.', data: { topic: { ...topic.toJSON(), commentNum }, commentList } });
         }
     } catch (err) {
         console.log(err);
@@ -91,7 +92,8 @@ export const getTopicById = async (req: Request, res: Response, next: NextFuncti
                 limit,
                 order: [['likes', 'DESC']]
             });
-            res.status(200).json({ message: '성공적으로 토픽이 조회되었습니다.', data: { topic, commentList } });
+            const commentNum: number = (await Comment.findAll({ where: { topicId: topic.id } })).length;
+            res.status(200).json({ message: '성공적으로 토픽이 조회되었습니다.', data: { topic: { ...topic.toJSON(), commentNum }, commentList } });
         }
     } catch (err) {
         console.log(err);
