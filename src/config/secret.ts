@@ -8,3 +8,5 @@ export const MYSQL_USERNAME: string = process.env.MYSQL_USERNAME;
 export const MYSQL_PASSWORD: string = process.env.MYSQL_PASSWORD;
 export const GMAIL_ID: string = process.env.GMAIL_ID;
 export const GMAIL_PASSWORD: string = process.env.GMAIL_PASSWORD;
+export const AWS_ACCESSKEY_ID: string = process.env.AWS_ACCESSKEY_ID;
+export const AWS_SECRET_ACCESSKEY: string = process.env.AWS_SECRET_ACCESSKEY;

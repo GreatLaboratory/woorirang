@@ -13,5 +13,7 @@ declare namespace NodeJS {
       MYSQL_PASSWORD: string,
       GMAIL_ID: string,
       GMAIL_PASSWORD: string,
+      AWS_ACCESSKEY_ID: string,
+      AWS_SECRET_ACCESSKEY: string,
     }
   }

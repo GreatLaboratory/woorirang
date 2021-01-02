@@ -50,3 +50,6 @@ src/testServer.ts
 /config
 /migrations
 /test
+
+# ENV File
+.env
